@@ -1,0 +1,28 @@
+Loaded 28 songs from data/songs.csv
+
+=== Acoustic Chill  |  mode=mood_first  |  top-5 ===
+Preferences: genres=folk/jazz/ambient/lofi, moods=relaxed/chill, energy=0.33, tempo=76, acousticness=0.88, danceability=0.5, popularity=48, explicit_ok=False
++-----+---------------------+----------------+---------+---------+---------+---------------------------------+
+|   # | Title               | Artist         | Genre   | Mood    |   Score | Why                             |
++=====+=====================+================+=========+=========+=========+=================================+
+|   1 | Sunday Slowdown     | Slow Stereo    | jazz    | relaxed |   13.78 | genre match: jazz (+1.50)       |
+|     |                     |                |         |         |         | mood match: relaxed (+6.00)     |
+|     |                     |                |         |         |         | energy similarity: 0.99 (+1.48) |
++-----+---------------------+----------------+---------+---------+---------+---------------------------------+
+|   2 | Library Rain        | Paper Lanterns | lofi    | chill   |   13.77 | genre match: lofi (+1.50)       |
+|     |                     |                |         |         |         | mood match: chill (+6.00)       |
+|     |                     |                |         |         |         | energy similarity: 0.98 (+1.47) |
++-----+---------------------+----------------+---------+---------+---------+---------------------------------+
+|   3 | Spacewalk Thoughts  | Orbit Bloom    | ambient | chill   |   13.48 | genre match: ambient (+1.50)    |
+|     |                     |                |         |         |         | mood match: chill (+6.00)       |
+|     |                     |                |         |         |         | energy similarity: 0.95 (+1.42) |
++-----+---------------------+----------------+---------+---------+---------+---------------------------------+
+|   4 | Midnight Coding     | LoRoom         | lofi    | chill   |   13.02 | genre match: lofi (+1.50)       |
+|     |                     |                |         |         |         | mood match: chill (+6.00)       |
+|     |                     |                |         |         |         | energy similarity: 0.91 (+1.36) |
++-----+---------------------+----------------+---------+---------+---------+---------------------------------+
+|   5 | Coffee Shop Stories | Slow Stereo    | jazz    | relaxed |   11.68 | genre match: jazz (+1.50)       |
+|     |                     |                |         |         |         | mood match: relaxed (+6.00)     |
+|     |                     |                |         |         |         | energy similarity: 0.96 (+1.44) |
++-----+---------------------+----------------+---------+---------+---------+---------------------------------+
+Diversity reranking: ENABLED (artist-repeat and genre-concentration penalties applied)

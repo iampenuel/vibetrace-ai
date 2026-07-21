@@ -1,0 +1,109 @@
+Loaded 28 songs from data/songs.csv
+
+=== High-Energy Pop  |  mode=balanced  |  top-5 ===
+Preferences: genres=pop, moods=energetic/happy, energy=0.9, tempo=124, acousticness=0.12, danceability=0.85, popularity=82, explicit_ok=False
++-----+---------------+---------------+---------+-----------+---------+---------------------------------+
+|   # | Title         | Artist        | Genre   | Mood      |   Score | Why                             |
++=====+===============+===============+=========+===========+=========+=================================+
+|   1 | Sunrise City  | Neon Echo     | pop     | happy     |   14.07 | genre match: pop (+3.00)        |
+|     |               |               |         |           |         | mood match: happy (+2.00)       |
+|     |               |               |         |           |         | energy similarity: 0.92 (+1.84) |
++-----+---------------+---------------+---------+-----------+---------+---------------------------------+
+|   2 | Seoul Nights  | Hana Kim      | pop     | energetic |   13.38 | genre match: pop (+3.00)        |
+|     |               |               |         |           |         | mood match: energetic (+2.00)   |
+|     |               |               |         |           |         | energy similarity: 0.96 (+1.92) |
++-----+---------------+---------------+---------+-----------+---------+---------------------------------+
+|   3 | Cielo Abierto | Los Vientos   | pop     | happy     |   12.7  | genre match: pop (+3.00)        |
+|     |               |               |         |           |         | mood match: happy (+2.00)       |
+|     |               |               |         |           |         | energy similarity: 0.90 (+1.80) |
++-----+---------------+---------------+---------+-----------+---------+---------------------------------+
+|   4 | Neon Pulse    | Circuit Bloom | edm     | energetic |   11.01 | mood match: energetic (+2.00)   |
+|     |               |               |         |           |         | energy similarity: 0.95 (+1.90) |
+|     |               |               |         |           |         | tempo similarity: 0.97 (+1.45)  |
++-----+---------------+---------------+---------+-----------+---------+---------------------------------+
+|   5 | Gym Hero      | Max Pulse     | pop     | intense   |   10.81 | genre match: pop (+3.00)        |
+|     |               |               |         |           |         | energy similarity: 0.97 (+1.94) |
+|     |               |               |         |           |         | tempo similarity: 0.93 (+1.40)  |
++-----+---------------+---------------+---------+-----------+---------+---------------------------------+
+Diversity reranking: ENABLED (artist-repeat and genre-concentration penalties applied)
+
+=== Acoustic Chill  |  mode=balanced  |  top-5 ===
+Preferences: genres=folk/jazz/ambient/lofi, moods=relaxed/chill, energy=0.33, tempo=76, acousticness=0.88, danceability=0.5, popularity=48, explicit_ok=False
++-----+---------------------+----------------+---------+---------+---------+---------------------------------+
+|   # | Title               | Artist         | Genre   | Mood    |   Score | Why                             |
++=====+=====================+================+=========+=========+=========+=================================+
+|   1 | Sunday Slowdown     | Slow Stereo    | jazz    | relaxed |   13.76 | genre match: jazz (+3.00)       |
+|     |                     |                |         |         |         | mood match: relaxed (+2.00)     |
+|     |                     |                |         |         |         | energy similarity: 0.99 (+1.98) |
++-----+---------------------+----------------+---------+---------+---------+---------------------------------+
+|   2 | Library Rain        | Paper Lanterns | lofi    | chill   |   13.6  | genre match: lofi (+3.00)       |
+|     |                     |                |         |         |         | mood match: chill (+2.00)       |
+|     |                     |                |         |         |         | energy similarity: 0.98 (+1.96) |
++-----+---------------------+----------------+---------+---------+---------+---------------------------------+
+|   3 | Spacewalk Thoughts  | Orbit Bloom    | ambient | chill   |   13.17 | genre match: ambient (+3.00)    |
+|     |                     |                |         |         |         | mood match: chill (+2.00)       |
+|     |                     |                |         |         |         | energy similarity: 0.95 (+1.90) |
++-----+---------------------+----------------+---------+---------+---------+---------------------------------+
+|   4 | Midnight Coding     | LoRoom         | lofi    | chill   |   12.76 | genre match: lofi (+3.00)       |
+|     |                     |                |         |         |         | mood match: chill (+2.00)       |
+|     |                     |                |         |         |         | energy similarity: 0.91 (+1.82) |
++-----+---------------------+----------------+---------+---------+---------+---------------------------------+
+|   5 | Coffee Shop Stories | Slow Stereo    | jazz    | relaxed |   11.54 | genre match: jazz (+3.00)       |
+|     |                     |                |         |         |         | mood match: relaxed (+2.00)     |
+|     |                     |                |         |         |         | energy similarity: 0.96 (+1.92) |
++-----+---------------------+----------------+---------+---------+---------+---------------------------------+
+Diversity reranking: ENABLED (artist-repeat and genre-concentration penalties applied)
+
+=== Intense Rock  |  mode=balanced  |  top-5 ===
+Preferences: genres=metal/rock, moods=dark/intense, energy=0.92, tempo=150, acousticness=0.1, danceability=0.6, popularity=62, explicit_ok=True
++-----+----------------+---------------+---------+---------+---------+---------------------------------+
+|   # | Title          | Artist        | Genre   | Mood    |   Score | Why                             |
++=====+================+===============+=========+=========+=========+=================================+
+|   1 | Storm Runner   | Voltline      | rock    | intense |   12.71 | genre match: rock (+3.00)       |
+|     |                |               |         |         |         | mood match: intense (+2.00)     |
+|     |                |               |         |         |         | energy similarity: 0.99 (+1.98) |
++-----+----------------+---------------+---------+---------+---------+---------------------------------+
+|   2 | Iron Veins     | Blackforge    | metal   | intense |   12.34 | genre match: metal (+3.00)      |
+|     |                |               |         |         |         | mood match: intense (+2.00)     |
+|     |                |               |         |         |         | energy similarity: 0.95 (+1.90) |
++-----+----------------+---------------+---------+---------+---------+---------------------------------+
+|   3 | Rust and Bone  | Voltline      | rock    | dark    |   10.73 | genre match: rock (+3.00)       |
+|     |                |               |         |         |         | mood match: dark (+2.00)        |
+|     |                |               |         |         |         | energy similarity: 0.93 (+1.86) |
++-----+----------------+---------------+---------+---------+---------+---------------------------------+
+|   4 | Bass Cathedral | Circuit Bloom | edm     | dark    |    9.39 | mood match: dark (+2.00)        |
+|     |                |               |         |         |         | energy similarity: 0.96 (+1.92) |
+|     |                |               |         |         |         | tempo similarity: 0.92 (+1.38)  |
++-----+----------------+---------------+---------+---------+---------+---------------------------------+
+|   5 | Gym Hero       | Max Pulse     | pop     | intense |    8.97 | mood match: intense (+2.00)     |
+|     |                |               |         |         |         | energy similarity: 0.99 (+1.98) |
+|     |                |               |         |         |         | tempo similarity: 0.85 (+1.27)  |
++-----+----------------+---------------+---------+---------+---------+---------------------------------+
+Diversity reranking: ENABLED (artist-repeat and genre-concentration penalties applied)
+
+=== EDM Workout  |  mode=balanced  |  top-5 ===
+Preferences: genres=edm, moods=energetic, energy=0.95, tempo=132, acousticness=0.05, danceability=0.9, popularity=75, explicit_ok=True
++-----+----------------+---------------+-----------+-----------+---------+----------------------------------+
+|   # | Title          | Artist        | Genre     | Mood      |   Score | Why                              |
++=====+================+===============+===========+===========+=========+==================================+
+|   1 | Neon Pulse     | Circuit Bloom | edm       | energetic |   13.86 | genre match: edm (+3.00)         |
+|     |                |               |           |           |         | mood match: energetic (+2.00)    |
+|     |                |               |           |           |         | energy similarity: 1.00 (+2.00)  |
++-----+----------------+---------------+-----------+-----------+---------+----------------------------------+
+|   2 | Electric Youth | Indigo Parade | indie pop | energetic |   10.13 | mood match: energetic (+2.00)    |
+|     |                |               |           |           |         | energy similarity: 0.88 (+1.76)  |
+|     |                |               |           |           |         | tempo similarity: 0.95 (+1.42)   |
++-----+----------------+---------------+-----------+-----------+---------+----------------------------------+
+|   3 | Seoul Nights   | Hana Kim      | pop       | energetic |    9.86 | mood match: energetic (+2.00)    |
+|     |                |               |           |           |         | energy similarity: 0.91 (+1.82)  |
+|     |                |               |           |           |         | tempo similarity: 0.92 (+1.38)   |
++-----+----------------+---------------+-----------+-----------+---------+----------------------------------+
+|   4 | Bass Cathedral | Circuit Bloom | edm       | dark      |    9.35 | genre match: edm (+3.00)         |
+|     |                |               |           |           |         | energy similarity: 0.93 (+1.86)  |
+|     |                |               |           |           |         | tempo similarity: 0.93 (+1.40)   |
++-----+----------------+---------------+-----------+-----------+---------+----------------------------------+
+|   5 | Gym Hero       | Max Pulse     | pop       | intense   |    8.39 | energy similarity: 0.98 (+1.96)  |
+|     |                |               |           |           |         | tempo similarity: 1.00 (+1.50)   |
+|     |                |               |           |           |         | valence similarity: 0.95 (+0.95) |
++-----+----------------+---------------+-----------+-----------+---------+----------------------------------+
+Diversity reranking: ENABLED (artist-repeat and genre-concentration penalties applied)

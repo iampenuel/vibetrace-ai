@@ -1,0 +1,28 @@
+Loaded 28 songs from data/songs.csv
+
+=== EDM Workout  |  mode=energy_focused  |  top-5 ===
+Preferences: genres=edm, moods=energetic, energy=0.95, tempo=132, acousticness=0.05, danceability=0.9, popularity=75, explicit_ok=True
++-----+----------------+---------------+-----------+-----------+---------+----------------------------------+
+|   # | Title          | Artist        | Genre     | Mood      |   Score | Why                              |
++=====+================+===============+===========+===========+=========+==================================+
+|   1 | Neon Pulse     | Circuit Bloom | edm       | energetic |   14.35 | genre match: edm (+1.00)         |
+|     |                |               |           |           |         | mood match: energetic (+1.00)    |
+|     |                |               |           |           |         | energy similarity: 1.00 (+5.00)  |
++-----+----------------+---------------+-----------+-----------+---------+----------------------------------+
+|   2 | Electric Youth | Indigo Parade | indie pop | energetic |   12.36 | mood match: energetic (+1.00)    |
+|     |                |               |           |           |         | energy similarity: 0.88 (+4.40)  |
+|     |                |               |           |           |         | tempo similarity: 0.95 (+2.85)   |
++-----+----------------+---------------+-----------+-----------+---------+----------------------------------+
+|   3 | Seoul Nights   | Hana Kim      | pop       | energetic |   12.34 | mood match: energetic (+1.00)    |
+|     |                |               |           |           |         | energy similarity: 0.91 (+4.55)  |
+|     |                |               |           |           |         | tempo similarity: 0.92 (+2.75)   |
++-----+----------------+---------------+-----------+-----------+---------+----------------------------------+
+|   4 | Gym Hero       | Max Pulse     | pop       | intense   |   11.86 | energy similarity: 0.98 (+4.90)  |
+|     |                |               |           |           |         | tempo similarity: 1.00 (+3.00)   |
+|     |                |               |           |           |         | valence similarity: 0.95 (+0.71) |
++-----+----------------+---------------+-----------+-----------+---------+----------------------------------+
+|   5 | Storm Runner   | Voltline      | rock      | intense   |   11.07 | energy similarity: 0.96 (+4.80)  |
+|     |                |               |           |           |         | tempo similarity: 0.83 (+2.50)   |
+|     |                |               |           |           |         | valence similarity: 0.76 (+0.57) |
++-----+----------------+---------------+-----------+-----------+---------+----------------------------------+
+Diversity reranking: ENABLED (artist-repeat and genre-concentration penalties applied)

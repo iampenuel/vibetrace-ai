@@ -1,0 +1,16 @@
+Loaded 28 songs from data/songs.csv
+
+=== Mode comparison for High-Energy Pop (top-5) ===
+Preferences: genres=pop, moods=energetic/happy, energy=0.9, tempo=124, acousticness=0.12, danceability=0.85, popularity=82, explicit_ok=False
+
+[balanced]
+  Sunrise City (14.07) > Seoul Nights (13.38) > Cielo Abierto (12.70) > Neon Pulse (11.01) > Gym Hero (10.81)
+
+[genre_first]
+  Sunrise City (12.29) > Seoul Nights (11.49) > Cielo Abierto (10.95) > Gym Hero (9.56) > Neon Pulse (6.25)
+
+[mood_first]
+  Sunrise City (14.20) > Seoul Nights (13.41) > Cielo Abierto (12.88) > Neon Pulse (12.57) > Electric Youth (12.40)
+
+[energy_focused]
+  Seoul Nights (13.64) > Sunrise City (13.12) > Neon Pulse (12.64) > Cielo Abierto (12.49) > Electric Youth (12.48)

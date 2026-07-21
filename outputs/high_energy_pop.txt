@@ -1,0 +1,28 @@
+Loaded 28 songs from data/songs.csv
+
+=== High-Energy Pop  |  mode=balanced  |  top-5 ===
+Preferences: genres=pop, moods=energetic/happy, energy=0.9, tempo=124, acousticness=0.12, danceability=0.85, popularity=82, explicit_ok=False
++-----+---------------+---------------+---------+-----------+---------+---------------------------------+
+|   # | Title         | Artist        | Genre   | Mood      |   Score | Why                             |
++=====+===============+===============+=========+===========+=========+=================================+
+|   1 | Sunrise City  | Neon Echo     | pop     | happy     |   14.07 | genre match: pop (+3.00)        |
+|     |               |               |         |           |         | mood match: happy (+2.00)       |
+|     |               |               |         |           |         | energy similarity: 0.92 (+1.84) |
++-----+---------------+---------------+---------+-----------+---------+---------------------------------+
+|   2 | Seoul Nights  | Hana Kim      | pop     | energetic |   13.38 | genre match: pop (+3.00)        |
+|     |               |               |         |           |         | mood match: energetic (+2.00)   |
+|     |               |               |         |           |         | energy similarity: 0.96 (+1.92) |
++-----+---------------+---------------+---------+-----------+---------+---------------------------------+
+|   3 | Cielo Abierto | Los Vientos   | pop     | happy     |   12.7  | genre match: pop (+3.00)        |
+|     |               |               |         |           |         | mood match: happy (+2.00)       |
+|     |               |               |         |           |         | energy similarity: 0.90 (+1.80) |
++-----+---------------+---------------+---------+-----------+---------+---------------------------------+
+|   4 | Neon Pulse    | Circuit Bloom | edm     | energetic |   11.01 | mood match: energetic (+2.00)   |
+|     |               |               |         |           |         | energy similarity: 0.95 (+1.90) |
+|     |               |               |         |           |         | tempo similarity: 0.97 (+1.45)  |
++-----+---------------+---------------+---------+-----------+---------+---------------------------------+
+|   5 | Gym Hero      | Max Pulse     | pop     | intense   |   10.81 | genre match: pop (+3.00)        |
+|     |               |               |         |           |         | energy similarity: 0.97 (+1.94) |
+|     |               |               |         |           |         | tempo similarity: 0.93 (+1.40)  |
++-----+---------------+---------------+---------+-----------+---------+---------------------------------+
+Diversity reranking: ENABLED (artist-repeat and genre-concentration penalties applied)

@@ -1,0 +1,28 @@
+Loaded 28 songs from data/songs.csv
+
+=== Intense Rock  |  mode=genre_first  |  top-5 ===
+Preferences: genres=metal/rock, moods=dark/intense, energy=0.92, tempo=150, acousticness=0.1, danceability=0.6, popularity=62, explicit_ok=True
++-----+----------------+---------------+---------+---------+---------+---------------------------------+
+|   # | Title          | Artist        | Genre   | Mood    |   Score | Why                             |
++=====+================+===============+=========+=========+=========+=================================+
+|   1 | Storm Runner   | Voltline      | rock    | intense |   11.36 | genre match: rock (+6.00)       |
+|     |                |               |         |         |         | mood match: intense (+1.50)     |
+|     |                |               |         |         |         | energy similarity: 0.99 (+0.99) |
++-----+----------------+---------------+---------+---------+---------+---------------------------------+
+|   2 | Iron Veins     | Blackforge    | metal   | intense |   11.17 | genre match: metal (+6.00)      |
+|     |                |               |         |         |         | mood match: intense (+1.50)     |
+|     |                |               |         |         |         | energy similarity: 0.95 (+0.95) |
++-----+----------------+---------------+---------+---------+---------+---------------------------------+
+|   3 | Rust and Bone  | Voltline      | rock    | dark    |    9.42 | genre match: rock (+6.00)       |
+|     |                |               |         |         |         | mood match: dark (+1.50)        |
+|     |                |               |         |         |         | energy similarity: 0.93 (+0.93) |
++-----+----------------+---------------+---------+---------+---------+---------------------------------+
+|   4 | Bass Cathedral | Circuit Bloom | edm     | dark    |    5.2  | mood match: dark (+1.50)        |
+|     |                |               |         |         |         | energy similarity: 0.96 (+0.96) |
+|     |                |               |         |         |         | tempo similarity: 0.92 (+0.69)  |
++-----+----------------+---------------+---------+---------+---------+---------------------------------+
+|   5 | Gym Hero       | Max Pulse     | pop     | intense |    4.99 | mood match: intense (+1.50)     |
+|     |                |               |         |         |         | energy similarity: 0.99 (+0.99) |
+|     |                |               |         |         |         | tempo similarity: 0.85 (+0.64)  |
++-----+----------------+---------------+---------+---------+---------+---------------------------------+
+Diversity reranking: ENABLED (artist-repeat and genre-concentration penalties applied)
