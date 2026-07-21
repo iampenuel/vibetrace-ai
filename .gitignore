@@ -13,3 +13,23 @@ venv/
 
 # Pytest cache
 .pytest_cache/
+
+# Coverage
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# Packaging / build
+*.egg-info/
+build/
+dist/
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+
+# Temporary junk
+*.tmp
+*.log
