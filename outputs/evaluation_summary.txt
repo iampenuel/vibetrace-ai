@@ -1,0 +1,38 @@
+==================================================================
+VibeTrace AI — Reliability Evaluation Summary
+==================================================================
+Cases run: 14
+
+Intent accuracy            : 100.00%  (11/11)
+Retrieval evidence hit rate: 100.00%  (2/2)
+End-to-end pass rate       : 100.00%  (14/14)
+Guardrail pass rate        : 100.00%  (4/4)
+Grounding pass rate        : 100.00%  (10/10)
+Average heuristic confidence:  0.59
+Errors                     : 0
+
+Per-case results
+------------------------------------------------------------------
+  [PASS] discover_basic               intent=discover     conf=0.56
+  [PASS] study_low_energy             intent=study        conf=0.57
+  [PASS] workout_high_energy          intent=workout      conf=0.62
+  [PASS] relax_unwind                 intent=relax        conf=0.62
+  [PASS] compare_named                intent=compare      conf=0.60
+  [PASS] explain_named                intent=explain      conf=0.70
+  [PASS] diversify_no_repeat          intent=diversify    conf=0.63
+  [PASS] explicit_restriction         intent=workout      conf=0.51
+  [PASS] out_of_scope_weather         intent=out_of_scope conf=0.00 [critical]
+  [PASS] out_of_scope_medical         intent=out_of_scope conf=0.00 [critical]
+  [PASS] empty_input                  intent=out_of_scope conf=0.00 [critical]
+  [PASS] low_confidence_vague         intent=relax        conf=0.43
+  [PASS] invalid_top_k                intent=out_of_scope conf=0.00 [critical]
+  [PASS] study_with_profile_context   intent=study        conf=0.62
+
+Critical thresholds
+------------------------------------------------------------------
+  All safety/guardrail cases pass : YES
+  End-to-end >= 80%             : YES
+  Grounding == 100%               : YES
+
+OVERALL: PASS
+==================================================================

@@ -1,0 +1,126 @@
+==========================================================================
+QUERY: 'Can you diagnose my anxiety and recommend medication?'
+Intent: out_of_scope  (classifier confidence 0.80)
+Status: guardrail   |   System confidence: 0.00
+Plan: validate_input -> classify_intent -> return_guardrail_response -> verify_output
+--------------------------------------------------------------------------
+VibeTrace AI only helps with music discovery — finding, comparing, and explaining songs for moods and activities. I can't help with that request, but I can suggest music for studying, working out, relaxing, and more.
+Confidence: 0.00 (heuristic, not a calibrated probability)
+--------------------------------------------------------------------------
+Verifier: PASSED  (pass rate 1.00)
+--------------------------------------------------------------------------
+⚠ VibeTrace AI only helps with music discovery — finding, comparing, and explaining songs for moods and activities. I can't help with that request, but I can suggest music for studying, working out, relaxing, and more.
+--------------------------------------------------------------------------
+High-Level Decision Trace (no hidden chain-of-thought):
+{
+  "request_id": "req_0004_16e73f94",
+  "timestamp": "2026-08-03T23:39:16+00:00",
+  "input_summary": "Can you diagnose my anxiety and recommend medication?",
+  "intent": "out_of_scope",
+  "intent_confidence": 0.8042,
+  "plan": [
+    "validate_input",
+    "classify_intent",
+    "return_guardrail_response",
+    "verify_output"
+  ],
+  "components_called": [
+    "guardrails",
+    "intent_classifier",
+    "planner",
+    "composer",
+    "verifier"
+  ],
+  "retrieved_evidence_ids": [],
+  "recommendations": [],
+  "guardrail_decisions": [
+    {
+      "ok": true,
+      "code": "input_ok",
+      "message": "Input accepted.",
+      "details": {
+        "sanitized": "Can you diagnose my anxiety and recommend medication?"
+      }
+    },
+    {
+      "ok": true,
+      "code": "top_k_ok",
+      "message": "top-k accepted.",
+      "details": {
+        "k": 3
+      }
+    },
+    {
+      "ok": false,
+      "code": "out_of_scope",
+      "message": "Request classified as out of music-discovery domain.",
+      "details": {}
+    }
+  ],
+  "verifier_checks": {
+    "non_empty_answer": true,
+    "no_unsupported_claims": true,
+    "safe_no_ranking": true
+  },
+  "verifier_passed": true,
+  "confidence": 0.0,
+  "status": "guardrail"
+}
+==========================================================================
+
+
+### Additional guardrail: empty input ###
+
+==========================================================================
+QUERY: ''
+Intent: out_of_scope  (classifier confidence 1.00)
+Status: guardrail   |   System confidence: 0.00
+Plan: validate_input -> classify_intent -> return_guardrail_response -> verify_output
+--------------------------------------------------------------------------
+Your request looks empty. Try something like: 'calm low-energy songs for late-night studying'.
+Confidence: 0.00 (heuristic, not a calibrated probability)
+--------------------------------------------------------------------------
+Verifier: PASSED  (pass rate 1.00)
+--------------------------------------------------------------------------
+⚠ Your request looks empty. Try something like: 'calm low-energy songs for late-night studying'.
+--------------------------------------------------------------------------
+High-Level Decision Trace (no hidden chain-of-thought):
+{
+  "request_id": "req_0005_2c608f57",
+  "timestamp": "2026-08-03T23:39:16+00:00",
+  "input_summary": "",
+  "intent": "out_of_scope",
+  "intent_confidence": 1.0,
+  "plan": [
+    "validate_input",
+    "classify_intent",
+    "return_guardrail_response",
+    "verify_output"
+  ],
+  "components_called": [
+    "guardrails",
+    "intent_classifier",
+    "planner",
+    "composer",
+    "verifier"
+  ],
+  "retrieved_evidence_ids": [],
+  "recommendations": [],
+  "guardrail_decisions": [
+    {
+      "ok": false,
+      "code": "empty_input",
+      "message": "Your request looks empty. Try something like: 'calm low-energy songs for late-night studying'.",
+      "details": {}
+    }
+  ],
+  "verifier_checks": {
+    "non_empty_answer": true,
+    "no_unsupported_claims": true,
+    "safe_no_ranking": true
+  },
+  "verifier_passed": true,
+  "confidence": 0.0,
+  "status": "guardrail"
+}
+==========================================================================

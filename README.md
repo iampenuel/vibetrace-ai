@@ -1,190 +1,165 @@
-# 🎵 Music Recommender Simulation — VibeScope
+# 🎧 VibeTrace AI
 
-A small, fully **explainable, content-based** music recommender. Given a user
-"taste profile" and a catalog of songs, VibeScope scores every song with a
-deterministic weighted formula, ranks them, optionally re-ranks for variety,
-and explains *exactly* why each song was chosen — every number in an
-explanation is generated from the number that was actually added to the score.
+**An explainable, retrieval-grounded music discovery copilot.**
 
-There is no machine learning and no listening history here. This is a
-classroom simulation designed to make the moving parts of a recommender
-(features → preferences → scoring → ranking → selection) visible and honest.
+VibeTrace AI takes a natural-language listening goal ("calm low-energy music for
+late-night studying"), classifies the intent, retrieves supporting evidence from
+a song catalog and a knowledge base, plans a workflow, ranks diverse songs by
+reusing a transparent Project 3 scoring engine, composes a grounded explanation
+with citations, verifies that every claim is backed by evidence, applies
+guardrails, and returns a transparent recommendation with a confidence score.
 
----
-
-## How real music recommendation systems work
-
-Production platforms (Spotify, Apple Music, YouTube Music) decide what to play
-next by combining many signals:
-
-- **Behavioral signals** — likes, skips, saves, repeat plays, listen/watch
-  time, playlist adds, and search activity.
-- **Context** — time of day, device, whether you are working out or winding
-  down.
-- **Item metadata / audio features** — genre, tempo, energy, "danceability",
-  and other measured characteristics of the audio itself.
-
-Two big families of algorithms turn those signals into recommendations:
-
-- **Collaborative filtering** learns from *patterns across many users*: "people
-  who liked what you liked also liked X." It needs lots of user history and can
-  surface songs that share no obvious attributes with your favorites.
-- **Content-based filtering** compares *item attributes* against a profile of
-  what a single user is known to like. It needs no other users, works from day
-  one, but tends to recommend "more of the same."
-
-It helps to separate four stages that every recommender shares:
-
-1. **Input data** — describes the songs (and, in real systems, user behavior).
-2. **User preferences** — what the system *believes* a person likes.
-3. **Scoring** — converts features + preferences into a numeric relevance value.
-4. **Ranking & selection** — sorts candidates by relevance and picks the final
-   top results, sometimes applying diversity, business, safety, or freshness
-   rules on top.
-
-**This project is a small content-based simulation, not a production Spotify
-model.** It implements stages 1–4 with transparent, hand-tuned weights so you
-can read every decision.
+> **No paid API key is required.** The entire required system runs locally and
+> offline after `pip install`. There is no OpenAI / Anthropic / Gemini dependency.
 
 ---
 
-## How this classroom simulation works
+## Why this problem matters
 
-- Each **song** is a row of attributes (genre, mood, energy, tempo, valence,
-  danceability, acousticness, plus popularity, decade, instrumentalness,
-  speechiness, liveness, language, and an explicit flag).
-- A **user profile** stores target values for those same attributes (e.g.
-  "energy ≈ 0.9, genre = pop, acousticness ≈ 0.1").
-- The **recommender** scores each song by measuring how *close* it is to the
-  user's targets, multiplies each closeness by a per-feature weight, and sums
-  them into a single score.
-- **Selection** sorts by score and returns the top *k*, optionally re-ranking
-  to avoid recommending too many songs by the same artist or in the same genre.
+Most recommender systems are black boxes: they tell you *what* to play but never
+*why*, and they can quietly overstate confidence or drift into claims they can't
+support. VibeTrace AI is a small, honest counter-example — a system that shows
+its reasoning at every step, cites the evidence behind each recommendation,
+refuses out-of-scope or unsafe requests, and reports a heuristic confidence
+rather than pretending to certainty. It is a study in *applied, responsible AI
+engineering* rather than raw recommendation accuracy.
 
 ---
 
-## Dataset overview
+## Original project
 
-`data/songs.csv` contains **28 fictional songs** (fictional titles and
-artists — no real lyrics or artists). It spans **16 genres**, **11 moods**,
-**6 languages**, and **7 release decades (1960s–2020s)**, and no artist appears
-more than twice.
+**Base project: Project 3 — Music Recommender Simulation.**
 
-### Base attributes (from the starter)
+> VibeTrace AI extends my Module 3 project, Music Recommender Simulation. The
+> original system loaded a structured song catalog, converted user preferences
+> into explainable feature scores, ranked songs, and produced transparent
+> recommendation reasons, with multiple named profiles and ranking modes. This
+> final project adds natural-language intent recognition, retrieval from multiple
+> sources, an agentic planning and verification pipeline, guardrails, trace
+> logging, and structured reliability evaluation.
 
-`id`, `title`, `artist`, `genre`, `mood`, `energy`, `tempo_bpm`, `valence`,
-`danceability`, `acousticness`.
+### How Project 4 extends Project 3
 
-### Additional stretch attributes (Agentic AI feature — 7 new)
-
-| Attribute | Range | Used in scoring as |
-|---|---|---|
-| `popularity` | 0–100 | closeness to target popularity |
-| `release_decade` | 1960–2020 | closeness to preferred decade |
-| `instrumentalness` | 0.0–1.0 | closeness to target |
-| `speechiness` | 0.0–1.0 | closeness to target |
-| `liveness` | 0.0–1.0 | closeness to target |
-| `language` | e.g. English/Spanish/… | exact-match bonus |
-| `explicit` | True/False | penalty when user disallows explicit |
-
-`duration_seconds` is also stored but is **not** counted among the seven
-scored attributes.
-
-All rows are validated on load (`load_songs`): required columns must exist,
-numeric fields must parse, 0–1 features must stay in range, popularity must be
-0–100, ids must be unique, booleans are parsed consistently, and leading/
-trailing whitespace is stripped. Bad data raises a clear `DatasetError`.
-
----
-
-## Complete feature list
-
-- Content-based weighted scoring over 14 scored features.
-- Deterministic ranking with stable tie-breaking (score ↓, title ↑, id ↑).
-- Truthful explanations built directly from score contributions.
-- **Four ranking modes** via a Strategy design pattern.
-- **Diversity / novelty reranking** to reduce filter bubbles (toggleable).
-- Dataset validation with clear errors.
-- `argparse` CLI with four named profiles, mode switching, and a formatted
-  table (`tabulate`).
-- Optional **Streamlit** UI (`src/app.py`) reusing the same logic.
-- 47 deterministic tests.
-
----
-
-## Scoring formula
-
-For each feature the user expressed a preference on:
-
-```
-numeric features:   similarity = clamp01(1 - |target - value| / range)
-                    contribution = weight[mode][feature] * similarity
-
-categorical (genre, mood, language):
-                    contribution = weight if the value matches, else 0
-
-explicit content:   contribution = -weight  if song is explicit and the
-                                            user disallows explicit content
-
-final_score = sum(contributions) - diversity_penalties
-```
-
-`range` normalizes each feature (1.0 for 0–1 features, 120 bpm for tempo, 100
-for popularity, 40 years for decade). Similarity is always clamped to
-`[0.0, 1.0]`, so the system rewards *closeness* to the target — a song is never
-rewarded simply for having higher energy.
-
----
-
-## Ranking modes and the Strategy pattern
-
-A "mode" is just a named set of feature weights. Each mode is a small concrete
-class implementing the `ScoringStrategy` base, registered in a factory
-(`get_strategy`). This keeps mode logic out of one giant `if/elif` block — to
-add a mode you add a class.
-
-| Mode | What it emphasizes |
+| Project 3 (preserved) | Project 4 (added) |
 |---|---|
-| `balanced` (default) | every feature contributes; genre & mood lead |
-| `genre_first` | genre match dominates (weight 6.0) |
-| `mood_first` | mood match dominates (weight 6.0) |
-| `energy_focused` | energy (5.0), tempo (3.0), danceability (2.0) |
+| CSV catalog loading + validation | Natural-language intent classification |
+| Weighted explainable scoring (`score_song`) | Multi-source TF-IDF retrieval (songs + docs + history) |
+| Ranking + diversity reranking | Agentic planner / executor / verifier workflow |
+| Strategy-pattern ranking modes | Input guardrails + safety refusals |
+| Deterministic reasons | Grounded composer with evidence IDs |
+| Pytest coverage | Structured JSONL traces + evaluation harness |
 
-Unknown modes raise a clear `ValueError`.
+The Project 3 recommendation math is **reused, not duplicated**: the agent calls
+`score_song`, `sort_scored`, and `diversify_scored` from `src/recommender.py`.
+
+---
+
+## Core capabilities
+
+- **Query interface:** CLI (`python -m src.main`) and Streamlit UI (`app.py`),
+  both backed by the *same* `VibeTraceAgent`.
+- **Input guardrails:** empty/whitespace, over-length, out-of-domain, invalid
+  top-k, explicit-content enforcement (hard filter), low-confidence fallback.
+- **Specialized intent classifier:** local TF-IDF + Logistic Regression over 8
+  intents, with a keyword baseline for comparison.
+- **Agent planner:** intent-specific high-level plans (compare ≠ discover ≠
+  out-of-scope).
+- **Multi-source retriever:** songs, knowledge documents, and sample listening
+  profiles in one TF-IDF space, each result carrying a stable evidence ID.
+- **Recommendation engine:** the Project 3 scorer, extended with a retrieval
+  relevance bonus and diversity reranking.
+- **Grounded composer:** deterministic answers with evidence citations.
+- **Verifier:** checks evidence existence, catalog membership, score ordering,
+  grounding, explicit compliance, and safety.
+- **Structured logging + evaluation harness** for reliability metrics.
 
 ---
 
-## Diversity and filter-bubble mitigation
+## Applied-AI feature overview
 
-After base scoring, `recommend_songs(..., diversify=True)` performs a
-transparent **greedy reranking**. As it fills the top-k list it subtracts:
+### RAG — multi-source retrieval (required + stretch)
 
-- `ARTIST_REPEAT_PENALTY = 1.5` for each earlier pick by the same artist, and
-- `GENRE_REPEAT_PENALTY = 0.4` for each earlier pick sharing the same genre.
+`MultiSourceRetriever` indexes three source types into one TF-IDF vector space:
 
-These penalties are folded into the final score and reported in the
-explanation, and the result stays fully deterministic. Set `diversify=False`
-(or pass `--no-diversity`) to get pure score order. See `model_card.md` for why
-this reduces repetition but does **not** guarantee fairness.
+- **Song catalog** → `[song:12]`
+- **Knowledge documents** (`knowledge/*.md`, split by `## section`) → `[doc:listening_contexts.md#studying]`
+- **Sample listening history** → `[history:night_owl_coder]`
+
+Retrieval runs **before** composition and changes behavior in two concrete ways:
+retrieved knowledge passages are cited as context, and a retrieval-relevance
+signal is blended into song scores (`base_score + 2.5 × similarity`). Disabling
+retrieval (`--no-retrieval`) removes both — see
+[`outputs/retrieval_comparison.txt`](outputs/retrieval_comparison.txt).
+
+### Agentic planner / executor / verifier (stretch)
+
+`VibeTraceAgent.run` executes:
+
+```
+validate → classify → plan → retrieve → build preferences → rank → diversify → compose → verify → log
+```
+
+Different intents produce different plans. An `out_of_scope` request never runs
+ranking; a `compare` request identifies two candidates and compares them instead
+of ranking the full catalog. The **verifier** runs before the answer is returned
+and can downgrade confidence and add warnings if grounding fails.
+
+### Specialized intent classifier (stretch)
+
+A local TF-IDF (word 1–2 grams **+** character 3–5 grams) + Logistic Regression
+model trained on `data/intent_training.json` (192 hand-written synthetic
+examples, 8 intents). A keyword baseline is included for comparison. This is a
+**small classroom specialization experiment, not a production language model.**
+
+### Evaluation harness (stretch)
+
+`scripts/evaluate_system.py` runs 14 predefined cases and reports intent
+accuracy, retrieval hit rate, end-to-end pass rate, guardrail pass rate,
+grounding pass rate, average confidence, and error count, with documented
+critical thresholds.
 
 ---
+
+## Reliability & guardrails
+
+Confidence is a **heuristic**, not a calibrated probability. It blends four
+transparent factors with fixed weights: intent-classifier confidence (0.30),
+top retrieval similarity (0.20), score separation between the top two picks
+(0.20), and the verifier pass rate (0.30). Guardrails fail gracefully with a
+useful message and are recorded in the trace; explicit-content requests are
+hard-filtered, not merely penalized.
+
+---
+
+## Architecture overview
+
+```
+User → CLI / Streamlit
+     → Guardrails → Intent Classifier → Planner
+     → Multi-Source Retriever (Songs | Knowledge Docs | User History)
+     → Recommendation Engine → Diversity Reranker
+     → Grounded Composer → Verifier (can warn / downgrade) → Output
+     → Structured Logger → Evaluation Harness → Human review
+```
+
+Mermaid source: [`diagrams/architecture.mmd`](diagrams/architecture.mmd).
 
 ## Project structure
 
 ```
-music-recommender/
-├── data/songs.csv          # 28-song validated catalog
-├── src/
-│   ├── recommender.py      # models, loader, scoring, strategies, diversity
-│   ├── profiles.py         # four named user profiles
-│   ├── main.py             # argparse CLI + tabulate table
-│   └── app.py              # optional Streamlit UI
-├── tests/test_recommender.py
-├── outputs/                # captured real CLI runs
-├── requirements.txt
-├── README.md
-├── model_card.md
-└── ai_interactions.md
+vibetrace-ai/
+├── README.md  model_card.md  ai_interactions.md  PRESENTATION.md  portfolio_blurb.md
+├── requirements.txt  .gitignore  app.py
+├── data/            songs.csv, intent_training.json, evaluation_cases.json, sample_user_history.json
+├── knowledge/       genre_guide.md, mood_and_energy_guide.md, listening_contexts.md, system_limits.md
+├── diagrams/        architecture.mmd
+├── logs/            agent_trace_examples.jsonl (committed samples)
+├── outputs/         demo_*.txt, retrieval_comparison.txt, specialization_comparison.txt, evaluation_summary.txt
+├── scripts/         evaluate_system.py, generate_demo_evidence.py, train_intent_classifier.py
+├── src/             agent.py, recommender.py, models.py, intent_classifier.py, retriever.py,
+│                    planner.py, composer.py, verifier.py, guardrails.py, logging_utils.py, main.py
+└── tests/           test_recommender, test_intent_classifier, test_retriever, test_guardrails,
+                     test_verifier, test_agent, test_evaluation_harness
 ```
 
 ---
@@ -192,286 +167,212 @@ music-recommender/
 ## Setup
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate      # macOS / Linux
-# .venv\Scripts\activate       # Windows
-pip install -r requirements.txt
+cd vibetrace-ai
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
 ```
 
-## Run instructions
+## CLI usage
 
 ```bash
-python -m src.main                      # default: High-Energy Pop, balanced
-python -m src.main --all-profiles --mode balanced --top-k 5
-streamlit run src/app.py                # optional UI
+python -m src.main --query "I need upbeat, clean songs for a 30-minute workout" --top-k 3
+python -m src.main --query "Give me calm low-energy music for late-night studying" --top-k 3 --show-trace
+python -m src.main --query "Compare Library Rain and Midnight Coding for studying"
+python -m src.main --query "Surprise me, but avoid repeating artists" --mode balanced
+python -m src.main --query ""            # guardrail demo
 ```
 
-### Ranking-mode CLI commands
+Options: `--query --top-k --mode --profile --show-trace --no-retrieval --no-diversity --log-path --json`.
+
+## Streamlit usage
 
 ```bash
-python -m src.main --profile high-energy-pop --mode balanced --top-k 5
-python -m src.main --profile acoustic-chill --mode mood_first --top-k 5
-python -m src.main --profile intense-rock --mode genre_first --top-k 5
-python -m src.main --profile edm-workout --mode energy_focused --top-k 5
-python -m src.main --compare-modes --profile high-energy-pop --top-k 5
-python -m src.main --profile high-energy-pop --no-diversity
+python -m streamlit run app.py
 ```
 
----
-
-## Profile experiments
-
-Four distinct profiles are defined in `src/profiles.py`; each differs across
-several preferences, not just genre. The outputs below are the **actual**
-captured runs saved under `outputs/`.
-
-### 1. High-Energy Pop — `--mode balanced`
-
-```
-=== High-Energy Pop  |  mode=balanced  |  top-5 ===
-Preferences: genres=pop, moods=energetic/happy, energy=0.9, tempo=124, acousticness=0.12, danceability=0.85, popularity=82, explicit_ok=False
-+-----+---------------+---------------+---------+-----------+---------+---------------------------------+
-|   # | Title         | Artist        | Genre   | Mood      |   Score | Why                             |
-+=====+===============+===============+=========+===========+=========+=================================+
-|   1 | Sunrise City  | Neon Echo     | pop     | happy     |   14.07 | genre match: pop (+3.00)        |
-|     |               |               |         |           |         | mood match: happy (+2.00)       |
-|     |               |               |         |           |         | energy similarity: 0.92 (+1.84) |
-+-----+---------------+---------------+---------+-----------+---------+---------------------------------+
-|   2 | Seoul Nights  | Hana Kim      | pop     | energetic |   13.38 | genre match: pop (+3.00)        |
-|     |               |               |         |           |         | mood match: energetic (+2.00)   |
-|     |               |               |         |           |         | energy similarity: 0.96 (+1.92) |
-+-----+---------------+---------------+---------+-----------+---------+---------------------------------+
-|   3 | Cielo Abierto | Los Vientos   | pop     | happy     |   12.7  | genre match: pop (+3.00)        |
-|     |               |               |         |           |         | mood match: happy (+2.00)       |
-|     |               |               |         |           |         | energy similarity: 0.90 (+1.80) |
-+-----+---------------+---------------+---------+-----------+---------+---------------------------------+
-|   4 | Neon Pulse    | Circuit Bloom | edm     | energetic |   11.01 | mood match: energetic (+2.00)   |
-|     |               |               |         |           |         | energy similarity: 0.95 (+1.90) |
-|     |               |               |         |           |         | tempo similarity: 0.97 (+1.45)  |
-+-----+---------------+---------------+---------+-----------+---------+---------------------------------+
-|   5 | Gym Hero      | Max Pulse     | pop     | intense   |   10.81 | genre match: pop (+3.00)        |
-|     |               |               |         |           |         | energy similarity: 0.97 (+1.94) |
-|     |               |               |         |           |         | tempo similarity: 0.93 (+1.40)  |
-+-----+---------------+---------------+---------+-----------+---------+---------------------------------+
-Diversity reranking: ENABLED (artist-repeat and genre-concentration penalties applied)
-```
-
-*Why:* pop / happy / high-energy tracks dominate. Note `Neon Pulse` (edm) sneaks
-into #4 above a fourth pop song — the diversity reranker penalizes over-
-concentration in one genre.
-
-### 2. Acoustic Chill — `--mode mood_first`
-
-```
-=== Acoustic Chill  |  mode=mood_first  |  top-5 ===
-Preferences: genres=folk/jazz/ambient/lofi, moods=relaxed/chill, energy=0.33, tempo=76, acousticness=0.88, danceability=0.5, popularity=48, explicit_ok=False
-+-----+---------------------+----------------+---------+---------+---------+---------------------------------+
-|   # | Title               | Artist         | Genre   | Mood    |   Score | Why                             |
-+=====+=====================+================+=========+=========+=========+=================================+
-|   1 | Sunday Slowdown     | Slow Stereo    | jazz    | relaxed |   13.78 | genre match: jazz (+1.50)       |
-|     |                     |                |         |         |         | mood match: relaxed (+6.00)     |
-|     |                     |                |         |         |         | energy similarity: 0.99 (+1.48) |
-+-----+---------------------+----------------+---------+---------+---------+---------------------------------+
-|   2 | Library Rain        | Paper Lanterns | lofi    | chill   |   13.77 | genre match: lofi (+1.50)       |
-|     |                     |                |         |         |         | mood match: chill (+6.00)       |
-|     |                     |                |         |         |         | energy similarity: 0.98 (+1.47) |
-+-----+---------------------+----------------+---------+---------+---------+---------------------------------+
-|   3 | Spacewalk Thoughts  | Orbit Bloom    | ambient | chill   |   13.48 | genre match: ambient (+1.50)    |
-|     |                     |                |         |         |         | mood match: chill (+6.00)       |
-|     |                     |                |         |         |         | energy similarity: 0.95 (+1.42) |
-+-----+---------------------+----------------+---------+---------+---------+---------------------------------+
-|   4 | Midnight Coding     | LoRoom         | lofi    | chill   |   13.02 | genre match: lofi (+1.50)       |
-|     |                     |                |         |         |         | mood match: chill (+6.00)       |
-|     |                     |                |         |         |         | energy similarity: 0.91 (+1.36) |
-+-----+---------------------+----------------+---------+---------+---------+---------------------------------+
-|   5 | Coffee Shop Stories | Slow Stereo    | jazz    | relaxed |   11.68 | genre match: jazz (+1.50)       |
-|     |                     |                |         |         |         | mood match: relaxed (+6.00)     |
-|     |                     |                |         |         |         | energy similarity: 0.96 (+1.44) |
-+-----+---------------------+----------------+---------+---------+---------+---------------------------------+
-Diversity reranking: ENABLED (artist-repeat and genre-concentration penalties applied)
-```
-
-*Why:* the profile shifts hard toward **low-energy, high-acousticness** chill/
-relaxed tracks. In `mood_first` mode the mood match (+6.00) dominates, so quiet
-jazz/lofi/ambient tracks top the list — a completely different world from the
-pop profile.
-
-### 3. Intense Rock — `--mode genre_first`
-
-```
-=== Intense Rock  |  mode=genre_first  |  top-5 ===
-Preferences: genres=metal/rock, moods=dark/intense, energy=0.92, tempo=150, acousticness=0.1, danceability=0.6, popularity=62, explicit_ok=True
-+-----+----------------+---------------+---------+---------+---------+---------------------------------+
-|   # | Title          | Artist        | Genre   | Mood    |   Score | Why                             |
-+=====+================+===============+=========+=========+=========+=================================+
-|   1 | Storm Runner   | Voltline      | rock    | intense |   11.36 | genre match: rock (+6.00)       |
-|     |                |               |         |         |         | mood match: intense (+1.50)     |
-|     |                |               |         |         |         | energy similarity: 0.99 (+0.99) |
-+-----+----------------+---------------+---------+---------+---------+---------------------------------+
-|   2 | Iron Veins     | Blackforge    | metal   | intense |   11.17 | genre match: metal (+6.00)      |
-|     |                |               |         |         |         | mood match: intense (+1.50)     |
-|     |                |               |         |         |         | energy similarity: 0.95 (+0.95) |
-+-----+----------------+---------------+---------+---------+---------+---------------------------------+
-|   3 | Rust and Bone  | Voltline      | rock    | dark    |    9.42 | genre match: rock (+6.00)       |
-|     |                |               |         |         |         | mood match: dark (+1.50)        |
-|     |                |               |         |         |         | energy similarity: 0.93 (+0.93) |
-+-----+----------------+---------------+---------+---------+---------+---------------------------------+
-|   4 | Bass Cathedral | Circuit Bloom | edm     | dark    |    5.2  | mood match: dark (+1.50)        |
-|     |                |               |         |         |         | energy similarity: 0.96 (+0.96) |
-|     |                |               |         |         |         | tempo similarity: 0.92 (+0.69)  |
-+-----+----------------+---------------+---------+---------+---------+---------------------------------+
-|   5 | Gym Hero       | Max Pulse     | pop     | intense |    4.99 | mood match: intense (+1.50)     |
-|     |                |               |         |         |         | energy similarity: 0.99 (+0.99) |
-|     |                |               |         |         |         | tempo similarity: 0.85 (+0.64)  |
-+-----+----------------+---------------+---------+---------+---------+---------------------------------+
-Diversity reranking: ENABLED (artist-repeat and genre-concentration penalties applied)
-```
-
-*Why:* in `genre_first` mode the +6.00 genre bonus makes rock/metal tracks pull
-far ahead (scores ~11 vs ~5 for off-genre songs). The steep score cliff between
-#3 and #4 shows the genre weight doing the heavy lifting.
-
-### Comparing the profiles
-
-The three profiles above share the **same catalog and the same scoring engine**
-yet produce almost no overlap in their top 5. Pop favors bright, danceable,
-mainstream tracks; Acoustic Chill collapses onto quiet, acoustic, instrumental
-tracks; Intense Rock climbs the genre/energy axis. That is content-based
-filtering working as intended: the *profile*, not the catalog, drives the
-result.
-
----
-
-## Mode-comparison experiment
-
-`python -m src.main --compare-modes --profile high-energy-pop --top-k 5`:
-
-```
-[balanced]
-  Sunrise City (14.07) > Seoul Nights (13.38) > Cielo Abierto (12.70) > Neon Pulse (11.01) > Gym Hero (10.81)
-
-[genre_first]
-  Sunrise City (12.29) > Seoul Nights (11.49) > Cielo Abierto (10.95) > Gym Hero (9.56) > Neon Pulse (6.25)
-
-[mood_first]
-  Sunrise City (14.20) > Seoul Nights (13.41) > Cielo Abierto (12.88) > Neon Pulse (12.57) > Electric Youth (12.40)
-
-[energy_focused]
-  Seoul Nights (13.64) > Sunrise City (13.12) > Neon Pulse (12.64) > Cielo Abierto (12.49) > Electric Youth (12.48)
-```
-
-*Observation:* switching modes changes which features dominate. `energy_focused`
-promotes `Seoul Nights` to #1 (its energy/tempo hug the targets), and
-`genre_first` pushes the off-genre `Neon Pulse` down to #5 (6.25) while
-`mood_first` pulls it up to #4 (12.57). Same songs, different lens.
-
----
-
-## Diversity experiment
-
-Same profile/mode, diversity **off** (`--no-diversity`):
-
-```
-1. Sunrise City  (14.07) pop
-2. Seoul Nights  (13.78) pop
-3. Cielo Abierto (13.50) pop
-4. Gym Hero      (12.02) pop
-5. Neon Pulse    (11.01) edm
-```
-
-With diversity **on** (default), the top 5 becomes:
-
-```
-1. Sunrise City  (14.07) pop
-2. Seoul Nights  (13.38) pop   <- -0.40 genre-concentration penalty
-3. Cielo Abierto (12.70) pop   <- -0.80 genre-concentration penalty
-4. Neon Pulse    (11.01) edm   <- promoted above a 4th pop song
-5. Gym Hero      (10.81) pop   <- pushed to #5
-```
-
-*Observation:* the diversity reranker leaves the strong #1 untouched, gently
-lowers each additional pop track, and lets `Neon Pulse` (edm) climb — trading a
-little relevance for more genre variety without randomizing the list.
-
----
-
-## Testing
+## Evaluation usage
 
 ```bash
-python -m compileall src tests
-PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest -v
-```
-
-Actual passing output (full log in `test_results.txt`):
-
-```
-============================= test session starts ==============================
-platform darwin -- Python 3.12.1, pytest-9.1.1, pluggy-1.6.0
-collecting ... collected 47 items
-
-tests/test_recommender.py::test_recommend_returns_songs_sorted_by_score PASSED
-tests/test_recommender.py::test_explain_recommendation_returns_non_empty_string PASSED
-... (43 more) ...
-tests/test_recommender.py::test_scores_are_deterministic PASSED
-
-============================== 47 passed in 0.03s ==============================
+python scripts/train_intent_classifier.py            # specialization experiment
+python scripts/evaluate_system.py | tee outputs/evaluation_summary.txt
+python scripts/generate_demo_evidence.py             # regenerate demo outputs + traces
 ```
 
 ---
 
-## Recommendation explanations (real examples)
+## Sample interactions (real execution output)
 
-1. **Sunrise City** (High-Energy Pop, balanced, 14.07):
-   `genre match: pop (+3.00); mood match: happy (+2.00); energy similarity: 0.92 (+1.84)`
-2. **Sunday Slowdown** (Acoustic Chill, mood_first, 13.78):
-   `genre match: jazz (+1.50); mood match: relaxed (+6.00); energy similarity: 0.99 (+1.48)`
-3. **Iron Veins** (Intense Rock, genre_first, 11.17):
-   `genre match: metal (+6.00); mood match: intense (+1.50); energy similarity: 0.95 (+0.95)`
+### 1. Study request (grounded, with retrieved context)
 
-Each explanation is generated from the exact contributions summed into the
-score — including any diversity penalty, e.g.
-`genre-concentration penalty: pop (-0.40)`.
+```text
+QUERY: 'Give me calm, low-energy music for late-night studying and explain each choice.'
+Intent: study  (classifier confidence 0.56)
+Status: ok   |   System confidence: 0.50
+Plan: validate_input -> classify_intent -> retrieve_catalog -> retrieve_context -> build_preferences -> rank_candidates -> apply_diversity -> compose_grounded_answer -> verify_output
+
+| # | Title              | Artist         | Genre   | Mood    | Score | Evidence  |
+|---|--------------------|----------------|---------|---------|-------|-----------|
+| 1 | Library Rain       | Paper Lanterns | lofi    | chill   | 9.77  | [song:4]  |
+| 2 | Sunday Slowdown    | Slow Stereo    | jazz    | relaxed | 9.67  | [song:25] |
+| 3 | Spacewalk Thoughts | Orbit Bloom    | ambient | chill   | 9.65  | [song:6]  |
+
+1. Library Rain — Paper Lanterns (score 9.77)
+   Why: mood match: chill (+2.00); energy similarity: 0.95 (+1.90); acousticness similarity: 0.99 (+1.48); instrumentalness similarity: 0.90 (+0.90); retrieval relevance: 0.10 (+0.26)
+   Evidence: [song:4]
+
+Context used: [doc:listening_contexts.md#reflective-listening] [doc:mood_and_energy_guide.md#energy] [doc:listening_contexts.md#studying]
+Note: This catalog is synthetic and small; scores reflect transparent feature matching, not a promise of enjoyment.
+Confidence: 0.50 (heuristic, not a calibrated probability)
+Verifier: PASSED  (pass rate 1.00)
+```
+
+### 2. Guardrail (out-of-domain refusal)
+
+```text
+QUERY: 'Can you diagnose my anxiety and recommend medication?'
+Intent: out_of_scope  (classifier confidence 0.80)
+Status: guardrail   |   System confidence: 0.00
+Plan: validate_input -> classify_intent -> return_guardrail_response -> verify_output
+VibeTrace AI only helps with music discovery — finding, comparing, and explaining
+songs for moods and activities. I can't help with that request, but I can suggest
+music for studying, working out, relaxing, and more.
+Verifier: PASSED  (pass rate 1.00)
+```
+
+Full outputs: [`outputs/demo_study.txt`](outputs/demo_study.txt),
+[`outputs/demo_discovery.txt`](outputs/demo_discovery.txt),
+[`outputs/demo_comparison.txt`](outputs/demo_comparison.txt),
+[`outputs/demo_guardrail.txt`](outputs/demo_guardrail.txt).
+
+### Retrieved-evidence behavior
+
+Every recommendation carries a `[song:id]` evidence ID; when retrieval is on, the
+answer also cites `[doc:...]` knowledge passages and, with a profile,
+`[history:...]`. The verifier confirms all cited IDs exist before returning.
+
+### High-level trace example (no hidden chain-of-thought)
+
+```json
+{
+  "request_id": "req_0002_1726caa8",
+  "intent": "study",
+  "intent_confidence": 0.5615,
+  "plan": ["validate_input","classify_intent","retrieve_catalog","retrieve_context","build_preferences","rank_candidates","apply_diversity","compose_grounded_answer","verify_output"],
+  "components_called": ["guardrails","intent_classifier","planner","retriever","recommender","composer","verifier"],
+  "retrieved_evidence_ids": ["doc:listening_contexts.md#reflective-listening","doc:mood_and_energy_guide.md#energy","doc:listening_contexts.md#studying"],
+  "recommendations": [{"id":4,"title":"Library Rain","score":9.766}, {"id":25,"title":"Sunday Slowdown","score":9.665}],
+  "verifier_checks": {"non_empty_answer": true, "evidence_ids_exist": true, "songs_exist": true, "scores_ordered": true, "recommendations_grounded": true, "explicit_respected": true},
+  "verifier_passed": true,
+  "confidence": 0.5037,
+  "status": "ok"
+}
+```
+
+More samples: [`logs/agent_trace_examples.jsonl`](logs/agent_trace_examples.jsonl).
 
 ---
 
-## Limitations and risks
+## Reliability summary (actual `scripts/evaluate_system.py` output)
 
-- Tiny synthetic catalog (28 songs) with hand-authored metadata.
-- Weights are hand-tuned, not learned from real feedback.
-- No collaborative filtering and no listening history — pure content-based.
-- Genre/mood are single coarse labels; real taste is fuzzier and multi-label.
-- Diversity penalties are a heuristic; they reduce repetition but do not
-  guarantee fairness.
-- Rewarding popularity can introduce mainstream bias.
+```text
+Intent accuracy            : 100.00%  (11/11)
+Retrieval evidence hit rate: 100.00%  (2/2)
+End-to-end pass rate       : 100.00%  (14/14)
+Guardrail pass rate        : 100.00%  (4/4)
+Grounding pass rate        : 100.00%  (10/10)
+Average heuristic confidence:  0.59
+Errors                     : 0
+OVERALL: PASS
+```
 
-A deeper treatment is in the model card.
+Critical thresholds (documented): all safety/guardrail cases must pass;
+end-to-end ≥ 80%; grounding = 100% for successful answers.
+
+### Retrieval before/after comparison
+
+With retrieval **off**, the study answer cites no `[doc:...]` context and applies
+no retrieval-relevance bonus. With retrieval **on**, it cites
+`[doc:listening_contexts.md#studying]` and `[doc:mood_and_energy_guide.md#energy]`
+and blends retrieval relevance into scoring — richer, evidence-grounded output.
+Full ablation: [`outputs/retrieval_comparison.txt`](outputs/retrieval_comparison.txt).
+
+### Specialization: baseline vs. trained model (4-fold CV, seed=42)
+
+```text
+Keyword baseline        :  58.85%
+Specialized classifier  :  74.48%
+Improvement             : +15.62 points
+```
+
+The trained model generalizes to paraphrases the keyword rules miss (biggest
+gains on `compare`, `explain`, `diversify`, `relax`). Full report:
+[`outputs/specialization_comparison.txt`](outputs/specialization_comparison.txt).
 
 ---
+
+## Testing summary
+
+**117 automated tests pass** across recommendation, classifier, retriever,
+guardrails, verifier, end-to-end agent, and evaluation-harness suites — including
+all preserved Project 3 tests.
+
+```bash
+python -m compileall src scripts tests app.py
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest -v | tee test_results.txt
+```
+
+```text
+======================= 117 passed, 18 warnings in 6.45s =======================
+```
+
+Full log: [`test_results.txt`](test_results.txt).
+
+---
+
+## Design decisions and tradeoffs
+
+- **Local hybrid over external LLM.** A fully local, deterministic pipeline is
+  reproducible, gradeable without secrets, and less prone to unsupported claims.
+  Tradeoff: less flexible language understanding than a large model.
+- **TF-IDF retrieval.** Transparent and fast, but misses semantic paraphrases a
+  dense embedding model would catch.
+- **Word + character n-grams** in the classifier: robust on a tiny dataset;
+  still small and classroom-scale.
+- **Verifier-in-the-loop.** Cheap insurance against ungrounded or unsafe output;
+  it can only downgrade/warn, never fabricate.
+- **Reuse, not rewrite.** The agent calls the Project 3 scorer directly.
+
+## Limitations
+
+Small synthetic catalog; handcrafted scoring weights; synthetic intent data;
+English-only; imperfect genre/mood proxies; no real user feedback; diversity may
+reduce raw relevance; TF-IDF misses paraphrases; confidence is heuristic, not
+calibrated; retrieved documents were written for this project.
+
+## Responsible use
+
+VibeTrace AI is **not** Spotify or a production recommender, and makes **no**
+medical, psychological, or emotional-health claims. Mood labels describe musical
+character, not a listener's state. It uses no real private listening data — only
+optional synthetic sample profiles. See
+[`knowledge/system_limits.md`](knowledge/system_limits.md).
+
+## Presentation & portfolio
+
+- Presentation plan: [`PRESENTATION.md`](PRESENTATION.md)
+- Portfolio blurb: [`portfolio_blurb.md`](portfolio_blurb.md)
+
+## Portfolio reflection
+
+Building VibeTrace AI meant thinking like an *AI systems engineer*, not just a
+model user: composing intent classification, retrieval, planning, and
+verification into one honest pipeline; making reliability measurable; and being
+disciplined about what the system may and may not claim. The most valuable
+component turned out to be the verifier — a small adversarial check that keeps
+the rest of the system honest.
 
 ## Model card
 
-See [**model_card.md**](model_card.md) for the full VibeScope Recommender 1.0
-model card (intended use, evaluation, limitations, fairness, and future work).
-
----
-
-## AI collaboration summary
-
-This project was built with the Claude Code agent driving repository setup,
-dataset expansion, implementation, testing, documentation, and Git history. All
-CLI output, test output, and evaluation results in this README are copied from
-real runs (see `outputs/` and `test_results.txt`) — none are fabricated. The
-Strategy pattern and additional-attribute work are documented in
-[ai_interactions.md](ai_interactions.md).
-
-## Reflection
-
-Building VibeScope made the "magic" of recommenders concrete: a recommendation
-is just a weighted sum of how closely a song matches a stored preference, then
-a sort. Making the scoring explainable forced every design choice into the
-open — which is also where bias hides. Because the weights and the popularity
-signal are chosen by hand, the system can quietly favor mainstream, English-
-language, non-explicit music unless you deliberately design against it. The
-diversity reranker helped me see that "relevance" and "variety" genuinely pull
-in opposite directions, and that mitigating a filter bubble is a tradeoff you
-tune, not a box you check.
+Full details, evaluation results, biases, misuse analysis, and the AI
+collaboration reflection: [`model_card.md`](model_card.md).

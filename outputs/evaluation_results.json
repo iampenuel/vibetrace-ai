@@ -1,0 +1,266 @@
+{
+  "metrics": {
+    "intent_accuracy": 1.0,
+    "retrieval_hit_rate": 1.0,
+    "end_to_end_pass_rate": 1.0,
+    "guardrail_pass_rate": 1.0,
+    "grounding_pass_rate": 1.0,
+    "average_confidence": 0.5859099999999999,
+    "errors": 0,
+    "overall_pass": true
+  },
+  "cases": [
+    {
+      "id": "discover_basic",
+      "query": "recommend a few good songs i might enjoy",
+      "predicted_intent": "discover",
+      "expected_intent": "discover",
+      "status": "ok",
+      "confidence": 0.5641,
+      "verifier_passed": true,
+      "grounded": true,
+      "checks": {
+        "status_ok": true,
+        "intent_match": true,
+        "min_recs": true
+      },
+      "passed": true,
+      "critical": false,
+      "reasons": []
+    },
+    {
+      "id": "study_low_energy",
+      "query": "give me calm low-energy music for late-night studying",
+      "predicted_intent": "study",
+      "expected_intent": "study",
+      "status": "ok",
+      "confidence": 0.5656,
+      "verifier_passed": true,
+      "grounded": true,
+      "checks": {
+        "status_ok": true,
+        "intent_match": true,
+        "min_recs": true,
+        "evidence_source": true,
+        "top_feature": true
+      },
+      "passed": true,
+      "critical": false,
+      "reasons": []
+    },
+    {
+      "id": "workout_high_energy",
+      "query": "high energy fast songs for my gym workout",
+      "predicted_intent": "workout",
+      "expected_intent": "workout",
+      "status": "ok",
+      "confidence": 0.6212,
+      "verifier_passed": true,
+      "grounded": true,
+      "checks": {
+        "status_ok": true,
+        "intent_match": true,
+        "min_recs": true,
+        "top_feature": true
+      },
+      "passed": true,
+      "critical": false,
+      "reasons": []
+    },
+    {
+      "id": "relax_unwind",
+      "query": "soothing relaxing music to unwind after a long day",
+      "predicted_intent": "relax",
+      "expected_intent": "relax",
+      "status": "ok",
+      "confidence": 0.618,
+      "verifier_passed": true,
+      "grounded": true,
+      "checks": {
+        "status_ok": true,
+        "intent_match": true,
+        "min_recs": true,
+        "top_feature": true
+      },
+      "passed": true,
+      "critical": false,
+      "reasons": []
+    },
+    {
+      "id": "compare_named",
+      "query": "compare Library Rain and Midnight Coding for studying",
+      "predicted_intent": "compare",
+      "expected_intent": "compare",
+      "status": "ok",
+      "confidence": 0.6031,
+      "verifier_passed": true,
+      "grounded": true,
+      "checks": {
+        "status_ok": true,
+        "intent_match": true,
+        "min_recs": true
+      },
+      "passed": true,
+      "critical": false,
+      "reasons": []
+    },
+    {
+      "id": "explain_named",
+      "query": "explain why you recommended Library Rain for studying",
+      "predicted_intent": "explain",
+      "expected_intent": "explain",
+      "status": "ok",
+      "confidence": 0.7026,
+      "verifier_passed": true,
+      "grounded": true,
+      "checks": {
+        "status_ok": true,
+        "intent_match": true,
+        "min_recs": true
+      },
+      "passed": true,
+      "critical": false,
+      "reasons": []
+    },
+    {
+      "id": "diversify_no_repeat",
+      "query": "surprise me with variety but avoid repeating artists",
+      "predicted_intent": "diversify",
+      "expected_intent": "diversify",
+      "status": "ok",
+      "confidence": 0.6253,
+      "verifier_passed": true,
+      "grounded": true,
+      "checks": {
+        "status_ok": true,
+        "intent_match": true,
+        "min_recs": true,
+        "distinct_artists": true
+      },
+      "passed": true,
+      "critical": false,
+      "reasons": []
+    },
+    {
+      "id": "explicit_restriction",
+      "query": "clean high energy songs for a workout with no explicit lyrics",
+      "predicted_intent": "workout",
+      "expected_intent": "workout",
+      "status": "ok",
+      "confidence": 0.5073,
+      "verifier_passed": true,
+      "grounded": true,
+      "checks": {
+        "status_ok": true,
+        "intent_match": true,
+        "min_recs": true,
+        "no_explicit": true
+      },
+      "passed": true,
+      "critical": false,
+      "reasons": []
+    },
+    {
+      "id": "out_of_scope_weather",
+      "query": "what is the weather forecast for tomorrow",
+      "predicted_intent": "out_of_scope",
+      "expected_intent": "out_of_scope",
+      "status": "guardrail",
+      "confidence": 0.0,
+      "verifier_passed": true,
+      "grounded": null,
+      "checks": {
+        "guardrail_triggered": true,
+        "intent_out_of_scope": true
+      },
+      "passed": true,
+      "critical": true,
+      "reasons": []
+    },
+    {
+      "id": "out_of_scope_medical",
+      "query": "diagnose my anxiety and tell me what medication to take",
+      "predicted_intent": "out_of_scope",
+      "expected_intent": "out_of_scope",
+      "status": "guardrail",
+      "confidence": 0.0,
+      "verifier_passed": true,
+      "grounded": null,
+      "checks": {
+        "guardrail_triggered": true,
+        "intent_out_of_scope": true
+      },
+      "passed": true,
+      "critical": true,
+      "reasons": []
+    },
+    {
+      "id": "empty_input",
+      "query": "",
+      "predicted_intent": "out_of_scope",
+      "expected_intent": null,
+      "status": "guardrail",
+      "confidence": 0.0,
+      "verifier_passed": true,
+      "grounded": null,
+      "checks": {
+        "guardrail_triggered": true
+      },
+      "passed": true,
+      "critical": true,
+      "reasons": []
+    },
+    {
+      "id": "low_confidence_vague",
+      "query": "music",
+      "predicted_intent": "relax",
+      "expected_intent": null,
+      "status": "ok",
+      "confidence": 0.4322,
+      "verifier_passed": true,
+      "grounded": true,
+      "checks": {
+        "status_ok": true,
+        "min_recs": true
+      },
+      "passed": true,
+      "critical": false,
+      "reasons": []
+    },
+    {
+      "id": "invalid_top_k",
+      "query": "recommend songs for studying",
+      "predicted_intent": "out_of_scope",
+      "expected_intent": null,
+      "status": "guardrail",
+      "confidence": 0.0,
+      "verifier_passed": true,
+      "grounded": null,
+      "checks": {
+        "guardrail_triggered": true
+      },
+      "passed": true,
+      "critical": true,
+      "reasons": []
+    },
+    {
+      "id": "study_with_profile_context",
+      "query": "quiet instrumental focus music for coding at night",
+      "predicted_intent": "study",
+      "expected_intent": "study",
+      "status": "ok",
+      "confidence": 0.6197,
+      "verifier_passed": true,
+      "grounded": true,
+      "checks": {
+        "status_ok": true,
+        "intent_match": true,
+        "min_recs": true,
+        "evidence_source": true
+      },
+      "passed": true,
+      "critical": false,
+      "reasons": []
+    }
+  ]
+}

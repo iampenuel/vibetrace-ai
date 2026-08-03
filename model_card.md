@@ -1,172 +1,199 @@
-# 🎧 Model Card: VibeScope Recommender 1.0
+# Model Card — VibeTrace AI
 
-## 1. Model name
+## 1. System name and version
+**VibeTrace AI**, version 1.0 — an explainable, retrieval-grounded music
+discovery copilot. This is a rule-and-classifier hybrid *system*, not a single
+trained model. No paid API key is required; it runs locally and offline.
 
-**VibeScope Recommender 1.0** — an explainable, content-based music
-recommender simulation.
+## 2. Base project
+Extends **Project 3 — Music Recommender Simulation**. The Project 3 explainable
+scoring engine (`src/recommender.py`) is reused directly by the agent.
 
-## 2. Goal / task
+## 3. Intended purpose
+Educational demonstration of applied, responsible AI: turning a natural-language
+listening goal into transparent, evidence-grounded, verified song
+recommendations over a small synthetic catalog.
 
-Given a user "taste profile" and a catalog of songs, rank the catalog by how
-well each song matches the profile and return an explainable top-*k* list.
+## 4. Intended users
+Students, instructors, and portfolio reviewers evaluating an applied-AI project.
+Secondary: anyone learning how RAG, agentic workflows, guardrails, and
+verification fit together in a small, readable codebase.
 
-## 3. Intended use
+## 5. Non-intended uses
+Not for real-world music-service deployment, not a source of truth about real
+songs or artists (the catalog is fictional), and **not** for any medical,
+psychological, or emotional-health decision-making.
 
-- Classroom exploration of how recommender systems turn data into predictions.
-- Demonstrating content-based scoring, ranking strategies, diversity reranking,
-  and transparent explanations.
-- A teaching artifact where every score can be traced back to the formula.
+## 6. System architecture
+CLI / Streamlit → guardrails → intent classifier → planner → multi-source
+retriever → recommendation engine → diversity reranker → grounded composer →
+verifier → structured logger → evaluation harness. See
+`diagrams/architecture.mmd`.
 
-## 4. Non-intended use
+## 7. Data sources
+- `data/songs.csv` — 28 synthetic songs with audio-style features (from P3).
+- `knowledge/*.md` — four original educational documents (genre, mood/energy,
+  listening contexts, system limits), chunked by `## section`.
+- `data/sample_user_history.json` — three fictional listening profiles.
+- `data/intent_training.json` — 192 synthetic labeled intent examples.
 
-- **Not** for production or real end-user recommendations.
-- Not a source of truth about real songs, artists, or listening behavior (the
-  catalog is fictional and synthetic).
-- Not suitable for any decision with real stakes; it has no real user data and
-  no evaluation against real preferences.
+## 8. Retrieval method
+Single TF-IDF vector space over songs, knowledge chunks, and history profiles;
+cosine similarity; deterministic tie-breaking by evidence ID. Each result is an
+`Evidence` object with a stable citation (`[song:id]`, `[doc:file#section]`,
+`[history:name]`). Missing sources degrade gracefully.
 
-## 5. Dataset description
+## 9. Intent classifier
+TF-IDF (word 1–2 grams + char 3–5 grams) + Logistic Regression
+(`C=8`, balanced classes, seed=42) over 8 intents. A keyword baseline is included
+for comparison. **A small classroom specialization experiment, not a production
+language model.** Low-confidence predictions (< 0.45) trigger a safe balanced
+fallback and a user-facing warning.
 
-`data/songs.csv` is a hand-authored, **fictional** catalog. Titles and artists
-are invented to avoid using copyrighted lyrics or making claims about real
-artists. It deliberately spreads across many genres, moods, languages, and
-decades so that different profiles produce different results.
+## 10. Recommendation method
+The Project 3 weighted, explainable scorer (`score_song`) computes a base score
+and truthful per-feature reasons. When retrieval is enabled, a retrieval
+relevance bonus (`2.5 × cosine similarity`) is blended in. Diversity reranking
+(artist-repeat and genre-concentration penalties) is reused from Project 3.
 
-## 6. Dataset size
+## 11. Agentic workflow
+`VibeTraceAgent.run` plans a per-intent sequence of steps and executes real
+components. `out_of_scope` skips ranking entirely; `compare` identifies and
+scores two candidates; `explain` scores one target. The verifier gates the final
+answer and can downgrade confidence and add warnings.
 
-**28 songs**, **16 genres**, **11 moods**, **6 languages**, **7 release
-decades (1960s–2020s)**. No artist appears more than twice.
+## 12. Confidence scoring
+Heuristic blend (documented weights): intent confidence 0.30, top retrieval
+similarity 0.20, top-two score separation 0.20, verifier pass rate 0.30, clamped
+to [0, 1]. **This is a transparent heuristic, not a calibrated probability of
+user satisfaction.**
 
-## 7. Base and additional attributes
+## 13. Guardrails
+Empty/whitespace input, over-length truncation, out-of-domain detection, invalid
+top-k, explicit-content **hard filtering**, and low-confidence fallback. All
+decisions are recorded in the trace; users never see raw stack traces.
 
-- **Base:** `id`, `title`, `artist`, `genre`, `mood`, `energy`, `tempo_bpm`,
-  `valence`, `danceability`, `acousticness`.
-- **Additional (7 scored):** `popularity` (0–100), `release_decade`,
-  `instrumentalness`, `speechiness`, `liveness` (0–1), `language`, `explicit`.
-- **Stored but not scored:** `duration_seconds`.
+## 14. Evaluation process
+`scripts/evaluate_system.py` runs 14 predefined cases (`data/evaluation_cases.json`)
+through the real agent and computes intent accuracy, retrieval hit rate,
+end-to-end pass rate, guardrail pass rate, grounding pass rate, average
+confidence, and error count. Critical thresholds: all safety cases pass;
+end-to-end ≥ 80%; grounding = 100% for successful answers.
 
-All rows are validated on load (schema, numeric ranges, unique ids, boolean
-parsing, whitespace normalization).
+## 15. Actual evaluation results
 
-## 8. Algorithm summary (plain language)
+Reliability harness (`outputs/evaluation_summary.txt`):
 
-Imagine a checklist of song qualities — how energetic, how acoustic, what
-genre, what mood, and so on. The user profile writes down a target for each
-quality. For every song we measure how close it is to each target, give each
-quality an importance weight, and add it all up. Songs closest to what the user
-wants across the important qualities get the highest total. We then sort by that
-total and hand back the top few. Nothing is learned or hidden — it is closeness
-× importance, summed.
+```text
+Intent accuracy            : 100.00%  (11/11)
+Retrieval evidence hit rate: 100.00%  (2/2)
+End-to-end pass rate       : 100.00%  (14/14)
+Guardrail pass rate        : 100.00%  (4/4)
+Grounding pass rate        : 100.00%  (10/10)
+Average heuristic confidence:  0.59
+Errors                     : 0
+OVERALL: PASS
+```
 
-## 9. Ranking modes
+Specialization experiment (4-fold CV, seed=42,
+`outputs/specialization_comparison.txt`):
 
-Four modes (a **Strategy** design pattern — each is a small class of weights):
+```text
+Keyword baseline        :  58.85%
+Specialized classifier  :  74.48%   (+15.62 points)
+```
 
-- `balanced` — every feature contributes; genre and mood lead.
-- `genre_first` — genre match dominates.
-- `mood_first` — mood match dominates.
-- `energy_focused` — energy, tempo, and danceability dominate.
+Automated tests: **117 passed** (`test_results.txt`).
 
-Switching modes measurably changes rankings (see README mode-comparison
-experiment).
+## 16. Strengths
+Fully transparent and explainable; every recommendation cites evidence; verifier
+prevents ungrounded or unsafe answers; reproducible (fixed seeds, deterministic
+ranking); no external services or secrets; reuses proven Project 3 math.
 
-## 10. Diversity reranking
+## 17. Limitations
+Small synthetic catalog (28 songs); handcrafted scoring weights; synthetic
+intent-training examples; English-focused queries; imperfect genre/mood proxies;
+no real user feedback; diversity heuristics can reduce raw relevance; TF-IDF
+misses semantic paraphrases; confidence is heuristic, not calibrated; the
+retrieved documents were written specifically for this project.
 
-After scoring, a greedy reranker subtracts a penalty for each already-selected
-song by the same **artist** (1.5) or in the same **genre** (0.4). Penalties are
-included in the final score and shown in the explanation. It can be disabled
-with `diversify=False` / `--no-diversity`.
+## 18. Biases
+The catalog's genre/mood/energy balance reflects the author's choices, so
+recommendations inherit that distribution. Intent examples are English and
+reflect one writer's phrasing. Keyword and TF-IDF features favor exact/character
+overlap over meaning, which can disadvantage unusual phrasings or dialects.
+Popularity as a feature can create a mild rich-get-richer effect.
 
-## 11. Strengths
+## 19. Misuse risks
+- Treating subjective recommendations as objective truth.
+- Interpreting the heuristic confidence as certainty.
+- Using synthetic catalog data as evidence about real artists.
+- Reading mood labels ("calm", "happy") as mental-health inferences.
+- Over-relying on a narrow catalog as if it were comprehensive.
 
-- Fully explainable: every number in an explanation comes from the score math.
-- Deterministic and reproducible (stable tie-breaking; identical runs match).
-- Cold-start friendly: needs no user history to work.
-- Cleanly separated stages (features → preferences → scoring → ranking →
-  selection) and easy-to-extend modes.
-- Gives intuitively reasonable results for clear profiles (see evaluation).
+## 20. Mitigations
+Limitations shown directly in outputs; evidence IDs on every claim; guardrails
+and out-of-scope refusals; explicit-content hard filtering; no health claims (a
+verifier check bans medical/therapeutic claim patterns); no real private user
+data; confidence warnings on low-confidence runs; recommended human review
+before any downstream use.
 
-## 12. Evaluation process
+## 21. Human oversight
+Automated verification runs on every response; output files are inspected
+programmatically; the evaluation harness enforces critical thresholds. **A final
+human review is recommended before submission.** The system does not claim a
+human manually reviewed every generated output.
 
-Evaluation is qualitative and reproducible rather than metric-based. We ran the
-CLI for multiple named profiles and ranking modes, saved the real output under
-`outputs/`, and checked that (a) each profile's top results matched the
-profile's intent, (b) switching modes changed which features dominated, and
-(c) enabling diversity changed the selected list in the expected direction.
-A 47-test suite (`tests/test_recommender.py`) additionally asserts scoring
-direction, ranking, edge cases, mode behavior, and diversity penalties.
+## 22. Privacy
+No real user data is collected or stored. The only "history" is three fictional
+sample profiles, used solely for optional retrieval grounding. Traces store
+short, sanitized input summaries and high-level decision records — never hidden
+reasoning.
 
-## 13. Profiles tested
+## 23. Future improvements
+Dense-embedding retrieval for paraphrase robustness; calibrated confidence;
+larger and more diverse catalog and intent data; multilingual support; real
+user-feedback signals; an optional external-LLM adapter that composes phrasing
+*only* on top of the same grounded evidence.
 
-- **High-Energy Pop** — pop, happy/energetic, high energy/danceability.
-- **Acoustic Chill** — lofi/folk/jazz/ambient, chill/relaxed, high acousticness.
-- **Intense Rock** — rock/metal, intense/dark, high energy/tempo.
-- **EDM Workout** — edm, energetic, very high energy/tempo/danceability.
+## 24. AI collaboration reflection
 
-## 14. Experiment results
+This project was built with AI-assisted planning (Claude Code). Three
+architectures were considered before implementation (see `ai_interactions.md`):
+(A) external-LLM-only, (B) retrieval + deterministic composer only, and (C) a
+local hybrid. Option C was selected.
 
-- **High-Energy Pop (balanced):** pop/happy/energetic tracks led; `Sunrise City`
-  scored 14.07. A non-pop track (`Neon Pulse`, edm) was promoted into the top-5
-  by the diversity reranker.
-- **Acoustic Chill (mood_first):** the list collapsed onto quiet, acoustic
-  jazz/lofi/ambient tracks; the +6.00 mood weight made mood the deciding factor.
-- **Intense Rock (genre_first):** rock/metal tracks pulled far ahead (~11 vs ~5)
-  because of the +6.00 genre weight.
-- **Mode comparison:** `energy_focused` promoted `Seoul Nights` to #1;
-  `genre_first` pushed the off-genre `Neon Pulse` to #5 (6.25) while `mood_first`
-  raised it to #4 (12.57).
-- **Diversity:** with diversity off, the top-5 was four pop songs then one edm;
-  with diversity on, additional pop tracks took small penalties and `Neon Pulse`
-  rose above the fourth pop song.
+**A helpful suggestion that was accepted:** adding a **verifier** that checks
+evidence IDs, catalog membership, score ordering, and guardrail compliance
+*before* returning the final answer. This became the backbone of the system's
+reliability and directly produces the grounding metric.
 
-## 15. Profile-output comparisons
+**A flawed suggestion that was modified/rejected:** using an external LLM for
+every response. That would have required private credentials, hurt
+reproducibility, and increased the risk of unsupported claims. It was modified
+into a fully local, deterministic pipeline, with any external LLM relegated to a
+strictly optional future adapter. *(This was a design suggestion considered
+during AI-assisted planning, not a runtime factual error.)*
 
-The three headline profiles share the same catalog and scoring engine yet have
-essentially non-overlapping top-5 lists. This is the signature of content-based
-filtering: the **profile**, not the catalog, drives the outcome. Pop selects
-bright/danceable/mainstream tracks; Acoustic Chill selects quiet/acoustic/
-instrumental tracks; Intense Rock climbs the genre-and-intensity axis.
+**How correctness was checked:** code inspection; 117 unit and end-to-end tests;
+the evaluation harness; execution logs and committed trace samples; Git diffs;
+and reproducible CLI demonstrations whose real output is saved under `outputs/`.
 
-## 16. Limitations and biases
+### What are the limitations or biases?
+See §17–§18. In short: a small synthetic catalog, handcrafted weights, synthetic
+English-only intent data, imperfect feature proxies, no real feedback, and a
+heuristic (uncalibrated) confidence.
 
-- Tiny synthetic catalog (28 songs); conclusions do not generalize.
-- Hand-crafted weights, not learned from data.
-- No real listening history and no collaborative filtering.
-- Simplified single-label mood/genre categorization that cannot capture the
-  full range or cultural nuance of real musical taste.
-- Synthetic metadata (popularity, audio features) invented by hand.
-- Explanations reveal the rules but do **not** prove recommendation *quality*.
+### Could the system be misused?
+See §19–§20. Chiefly by mistaking subjective, synthetic recommendations for
+objective truth or reading mood labels as health signals — mitigated by visible
+limitations, evidence IDs, guardrails, and the no-health-claims verifier check.
 
-## 17. Filter-bubble risk
-
-Content-based scoring inherently recommends "more of the same," which can trap a
-user in a narrow slice of taste. Rewarding `popularity` compounds this by
-nudging toward mainstream tracks. The diversity reranker is a partial mitigation
-(it penalizes artist and genre repetition), but it only reshuffles within the
-already-similar candidate set — it cannot introduce genuinely novel taste.
-
-## 18. Fairness discussion
-
-The diversity reranker reduces repetition, but it is a heuristic and does **not
-guarantee fairness**. It does not model artist equity, catalog representation,
-cultural balance, or exposure fairness, and the popularity signal can
-systematically disadvantage less-popular or non-English-language tracks. Fair
-recommendation would require explicit fairness objectives and measurement, not
-just an anti-repetition penalty.
-
-## 19. Improvement ideas
-
-1. **Learn weights from feedback** (likes/skips) instead of hand-tuning.
-2. **Add larger, multilingual catalogs** and multi-label genres/moods.
-3. **Use embeddings or real audio features** rather than scalar attributes;
-   optionally add user history and a collaborative-filtering signal.
-4. **Measure diversity and relevance quantitatively** and run human evaluation.
-
-## 20. Personal reflection
-
-The most useful lesson was how ordinary a recommendation is underneath: measure
-closeness, weight it, sort. Forcing the model to explain itself made the design
-choices — and their biases — impossible to hide, and building the diversity
-reranker made the relevance-vs-variety tradeoff tangible rather than abstract.
-Mitigating a filter bubble turned out to be a dial you tune with eyes open, not
-a feature you simply switch on.
+### What surprised me in reliability testing?
+Two real observations from the runs above: (1) the *keyword baseline* was
+initially very strong because its rules matched the training vocabulary, so an
+honest comparison required expanding the dataset with paraphrases and switching
+to cross-validation — after which the trained model led by ~15 points; and
+(2) a broadly-scoped banned-phrase check first flagged the system's **own honest
+disclaimer** ("treat scores as…"), which taught me to make safety checks specific
+to *claims* rather than vocabulary.

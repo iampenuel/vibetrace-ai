@@ -1,0 +1,132 @@
+==========================================================================
+QUERY: 'I need upbeat, clean songs for a 30-minute workout.'
+Intent: workout  (classifier confidence 0.86)
+Status: ok   |   System confidence: 0.58
+Plan: validate_input -> classify_intent -> retrieve_catalog -> retrieve_context -> build_preferences -> rank_candidates -> apply_diversity -> compose_grounded_answer -> verify_output
+--------------------------------------------------------------------------
+|   # | Title          | Artist        | Genre     | Mood      |   Score | Evidence   |
+|-----|----------------|---------------|-----------|-----------|---------|------------|
+|   1 | Gym Hero       | Max Pulse     | pop       | intense   |    9.18 | [song:5]   |
+|   2 | Neon Pulse     | Circuit Bloom | edm       | energetic |    9.08 | [song:12]  |
+|   3 | Electric Youth | Indigo Parade | indie pop | energetic |    8.57 | [song:26]  |
+
+I interpreted this as a high-energy workout request.
+
+1. Gym Hero — Max Pulse (score 9.18)
+   Why: mood match: intense (+2.00); energy similarity: 1.00 (+2.00); tempo similarity: 1.00 (+1.50); valence similarity: 0.95 (+0.95); danceability similarity: 1.00 (+1.00); acousticness similarity: 0.99 (+1.48); clean-content match (+0.00); retrieval relevance: 0.10 (+0.25)
+   Evidence: [song:5]
+2. Neon Pulse — Circuit Bloom (score 9.08)
+   Why: mood match: energetic (+2.00); energy similarity: 0.98 (+1.96); tempo similarity: 0.97 (+1.45); valence similarity: 0.98 (+0.98); danceability similarity: 0.98 (+0.98); acousticness similarity: 0.97 (+1.46); clean-content match (+0.00); retrieval relevance: 0.10 (+0.25)
+   Evidence: [song:12]
+3. Electric Youth — Indigo Parade (score 8.57)
+   Why: mood match: energetic (+2.00); energy similarity: 0.90 (+1.80); tempo similarity: 0.95 (+1.42); valence similarity: 0.97 (+0.97); danceability similarity: 0.92 (+0.92); acousticness similarity: 0.81 (+1.22); clean-content match (+0.00); retrieval relevance: 0.10 (+0.24)
+   Evidence: [song:26]
+
+Context used: [doc:mood_and_energy_guide.md#tempo] [doc:system_limits.md#synthetic-catalog] [doc:mood_and_energy_guide.md#energy]
+
+Note: diversity reranking is on, so artists and genres are spread out.
+Note: This catalog is synthetic and small; scores reflect transparent feature matching, not a promise of enjoyment.
+Confidence: 0.58 (heuristic, not a calibrated probability)
+--------------------------------------------------------------------------
+Retrieved evidence:
+  [song:20]                                        sim=0.101  Cielo Abierto
+  [song:12]                                        sim=0.100  Neon Pulse
+  [song:27]                                        sim=0.100  Seoul Nights
+  [song:5]                                         sim=0.100  Gym Hero
+  [song:26]                                        sim=0.096  Electric Youth
+  [song:3]                                         sim=0.084  Storm Runner
+  [song:16]                                        sim=0.078  Iron Veins
+  [song:28]                                        sim=0.078  Rust and Bone
+  [song:24]                                        sim=0.075  Bass Cathedral
+  [song:10]                                        sim=0.056  Rooftop Lights
+  [song:13]                                        sim=0.030  Velvet Morning
+  [song:21]                                        sim=0.028  Tokyo Rain
+  [doc:mood_and_energy_guide.md#tempo]             sim=0.085  tempo
+  [doc:system_limits.md#synthetic-catalog]         sim=0.073  synthetic catalog
+  [doc:mood_and_energy_guide.md#energy]            sim=0.068  energy
+--------------------------------------------------------------------------
+Verifier: PASSED  (pass rate 1.00)
+--------------------------------------------------------------------------
+High-Level Decision Trace (no hidden chain-of-thought):
+{
+  "request_id": "req_0001_df3090f9",
+  "timestamp": "2026-08-03T23:39:16+00:00",
+  "input_summary": "I need upbeat, clean songs for a 30-minute workout.",
+  "intent": "workout",
+  "intent_confidence": 0.8649,
+  "plan": [
+    "validate_input",
+    "classify_intent",
+    "retrieve_catalog",
+    "retrieve_context",
+    "build_preferences",
+    "rank_candidates",
+    "apply_diversity",
+    "compose_grounded_answer",
+    "verify_output"
+  ],
+  "components_called": [
+    "guardrails",
+    "intent_classifier",
+    "planner",
+    "retriever",
+    "recommender",
+    "composer",
+    "verifier"
+  ],
+  "retrieved_evidence_ids": [
+    "doc:mood_and_energy_guide.md#tempo",
+    "doc:system_limits.md#synthetic-catalog",
+    "doc:mood_and_energy_guide.md#energy"
+  ],
+  "recommendations": [
+    {
+      "id": 5,
+      "title": "Gym Hero",
+      "score": 9.1845
+    },
+    {
+      "id": 12,
+      "title": "Neon Pulse",
+      "score": 9.0758
+    },
+    {
+      "id": 26,
+      "title": "Electric Youth",
+      "score": 8.5702
+    }
+  ],
+  "guardrail_decisions": [
+    {
+      "ok": true,
+      "code": "input_ok",
+      "message": "Input accepted.",
+      "details": {
+        "sanitized": "I need upbeat, clean songs for a 30-minute workout."
+      }
+    },
+    {
+      "ok": true,
+      "code": "top_k_ok",
+      "message": "top-k accepted.",
+      "details": {
+        "k": 3
+      }
+    }
+  ],
+  "verifier_checks": {
+    "non_empty_answer": true,
+    "no_unsupported_claims": true,
+    "evidence_ids_exist": true,
+    "songs_exist": true,
+    "scores_ordered": true,
+    "recommendations_grounded": true,
+    "count_satisfied": true,
+    "explicit_respected": true,
+    "low_confidence_acknowledged": true
+  },
+  "verifier_passed": true,
+  "confidence": 0.5818,
+  "status": "ok"
+}
+==========================================================================

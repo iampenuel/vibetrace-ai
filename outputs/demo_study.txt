@@ -1,0 +1,132 @@
+==========================================================================
+QUERY: 'Give me calm, low-energy music for late-night studying and explain each choice.'
+Intent: study  (classifier confidence 0.56)
+Status: ok   |   System confidence: 0.50
+Plan: validate_input -> classify_intent -> retrieve_catalog -> retrieve_context -> build_preferences -> rank_candidates -> apply_diversity -> compose_grounded_answer -> verify_output
+--------------------------------------------------------------------------
+|   # | Title              | Artist         | Genre   | Mood    |   Score | Evidence   |
+|-----|--------------------|----------------|---------|---------|---------|------------|
+|   1 | Library Rain       | Paper Lanterns | lofi    | chill   |    9.77 | [song:4]   |
+|   2 | Sunday Slowdown    | Slow Stereo    | jazz    | relaxed |    9.67 | [song:25]  |
+|   3 | Spacewalk Thoughts | Orbit Bloom    | ambient | chill   |    9.65 | [song:6]   |
+
+I interpreted this as a calm, focus-friendly study request.
+
+1. Library Rain — Paper Lanterns (score 9.77)
+   Why: mood match: chill (+2.00); energy similarity: 0.95 (+1.90); tempo similarity: 0.97 (+1.45); valence similarity: 0.95 (+0.95); danceability similarity: 0.82 (+0.82); acousticness similarity: 0.99 (+1.48); instrumentalness similarity: 0.90 (+0.90); retrieval relevance: 0.10 (+0.26)
+   Evidence: [song:4]
+2. Sunday Slowdown — Slow Stereo (score 9.67)
+   Why: mood match: relaxed (+2.00); energy similarity: 0.96 (+1.92); tempo similarity: 1.00 (+1.50); valence similarity: 0.86 (+0.86); danceability similarity: 0.90 (+0.90); acousticness similarity: 0.94 (+1.41); instrumentalness similarity: 0.82 (+0.82); retrieval relevance: 0.10 (+0.26)
+   Evidence: [song:25]
+3. Spacewalk Thoughts — Orbit Bloom (score 9.65)
+   Why: mood match: chill (+2.00); energy similarity: 0.98 (+1.96); tempo similarity: 0.87 (+1.30); valence similarity: 0.90 (+0.90); danceability similarity: 0.99 (+0.99); acousticness similarity: 0.93 (+1.40); instrumentalness similarity: 0.85 (+0.85); retrieval relevance: 0.10 (+0.25)
+   Evidence: [song:6]
+
+Context used: [doc:listening_contexts.md#reflective-listening] [doc:mood_and_energy_guide.md#energy] [doc:listening_contexts.md#studying]
+
+Note: diversity reranking is on, so artists and genres are spread out.
+Note: This catalog is synthetic and small; scores reflect transparent feature matching, not a promise of enjoyment.
+Confidence: 0.50 (heuristic, not a calibrated probability)
+--------------------------------------------------------------------------
+Retrieved evidence:
+  [song:2]                                         sim=0.108  Midnight Coding
+  [song:18]                                        sim=0.107  Whispering Pines
+  [song:9]                                         sim=0.106  Focus Flow
+  [song:4]                                         sim=0.104  Library Rain
+  [song:25]                                        sim=0.102  Sunday Slowdown
+  [song:23]                                        sim=0.101  Deep Space Signal
+  [song:6]                                         sim=0.101  Spacewalk Thoughts
+  [song:7]                                         sim=0.100  Coffee Shop Stories
+  [song:14]                                        sim=0.099  Moonlit Sonata Redux
+  [song:22]                                        sim=0.071  Paris After Dark
+  [song:8]                                         sim=0.068  Night Drive Loop
+  [song:13]                                        sim=0.008  Velvet Morning
+  [doc:listening_contexts.md#reflective-listening] sim=0.167  reflective listening
+  [doc:mood_and_energy_guide.md#energy]            sim=0.105  energy
+  [doc:listening_contexts.md#studying]             sim=0.077  studying
+--------------------------------------------------------------------------
+Verifier: PASSED  (pass rate 1.00)
+--------------------------------------------------------------------------
+High-Level Decision Trace (no hidden chain-of-thought):
+{
+  "request_id": "req_0002_1726caa8",
+  "timestamp": "2026-08-03T23:39:16+00:00",
+  "input_summary": "Give me calm, low-energy music for late-night studying and explain each choice.",
+  "intent": "study",
+  "intent_confidence": 0.5615,
+  "plan": [
+    "validate_input",
+    "classify_intent",
+    "retrieve_catalog",
+    "retrieve_context",
+    "build_preferences",
+    "rank_candidates",
+    "apply_diversity",
+    "compose_grounded_answer",
+    "verify_output"
+  ],
+  "components_called": [
+    "guardrails",
+    "intent_classifier",
+    "planner",
+    "retriever",
+    "recommender",
+    "composer",
+    "verifier"
+  ],
+  "retrieved_evidence_ids": [
+    "doc:listening_contexts.md#reflective-listening",
+    "doc:mood_and_energy_guide.md#energy",
+    "doc:listening_contexts.md#studying"
+  ],
+  "recommendations": [
+    {
+      "id": 4,
+      "title": "Library Rain",
+      "score": 9.766
+    },
+    {
+      "id": 25,
+      "title": "Sunday Slowdown",
+      "score": 9.6653
+    },
+    {
+      "id": 6,
+      "title": "Spacewalk Thoughts",
+      "score": 9.6467
+    }
+  ],
+  "guardrail_decisions": [
+    {
+      "ok": true,
+      "code": "input_ok",
+      "message": "Input accepted.",
+      "details": {
+        "sanitized": "Give me calm, low-energy music for late-night studying and explain each choice."
+      }
+    },
+    {
+      "ok": true,
+      "code": "top_k_ok",
+      "message": "top-k accepted.",
+      "details": {
+        "k": 3
+      }
+    }
+  ],
+  "verifier_checks": {
+    "non_empty_answer": true,
+    "no_unsupported_claims": true,
+    "evidence_ids_exist": true,
+    "songs_exist": true,
+    "scores_ordered": true,
+    "recommendations_grounded": true,
+    "count_satisfied": true,
+    "explicit_respected": true,
+    "low_confidence_acknowledged": true
+  },
+  "verifier_passed": true,
+  "confidence": 0.5037,
+  "status": "ok"
+}
+==========================================================================
