@@ -33,3 +33,11 @@ dist/
 # Temporary junk
 *.tmp
 *.log
+
+# Trained model artifacts (agent trains reproducibly in-memory from JSON)
+*.joblib
+models/
+
+# Runtime agent traces — keep only the curated committed examples
+logs/*.jsonl
+!logs/agent_trace_examples.jsonl

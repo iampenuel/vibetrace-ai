@@ -709,6 +709,36 @@ def _reasons_to_text(reasons: Sequence[str]) -> str:
     return "; ".join(reasons) if reasons else "no active preferences"
 
 
+# ---------------------------------------------------------------------------
+# Public ranking helpers (used by the Project 4 agent to reuse P3 math)
+# ---------------------------------------------------------------------------
+
+def reasons_to_text(reasons: Sequence[str]) -> str:
+    """Public alias so callers can format reason lists the same way the CLI does."""
+    return _reasons_to_text(reasons)
+
+
+def sort_scored(
+    scored: List[Tuple[Dict, float, List[str]]]
+) -> List[Tuple[Dict, float, List[str]]]:
+    """Deterministically sort ``(song, score, reasons)`` tuples (score desc)."""
+    ordered = list(scored)
+    ordered.sort(key=_sort_key)
+    return ordered
+
+
+def diversify_scored(
+    scored: List[Tuple[Dict, float, List[str]]], k: int
+) -> List[Tuple[Dict, float, List[str]]]:
+    """Public wrapper around the greedy diversity reranker.
+
+    Lets the Project 4 agent apply artist/genre diversity to a list of songs it
+    has already scored (for example, after adding a retrieval bonus) without
+    duplicating the diversity math from :func:`recommend_songs`.
+    """
+    return _diversify(list(scored), k)
+
+
 def recommend_songs(
     user_prefs: Dict,
     songs: List[Dict],

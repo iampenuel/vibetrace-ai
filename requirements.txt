@@ -1,4 +1,7 @@
+# VibeTrace AI dependencies — all local, no paid API keys required.
 pandas
 pytest
 streamlit
 tabulate
+scikit-learn
+joblib

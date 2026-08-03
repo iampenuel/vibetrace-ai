@@ -1,0 +1,44 @@
+%% VibeTrace AI — system architecture and data flow
+%% Render at https://mermaid.live or with the Mermaid CLI.
+flowchart TD
+    User([User]) --> CLI[CLI: python -m src.main]
+    User --> UI[Streamlit UI: app.py]
+
+    CLI --> Agent
+    UI --> Agent
+
+    subgraph Agent["VibeTraceAgent — planner / executor / verifier"]
+        direction TB
+        Guard[Input Guardrails]
+        Intent[Specialized Intent Classifier<br/>TF-IDF + LogisticRegression]
+        Plan[Agent Planner]
+        Retr[Multi-Source Retriever<br/>TF-IDF cosine similarity]
+        Rank[Recommendation Engine<br/>reuses Project 3 scoring]
+        Div[Diversity Reranker]
+        Comp[Grounded Response Composer]
+        Ver[Verifier]
+
+        Guard --> Intent --> Plan --> Retr --> Rank --> Div --> Comp --> Ver
+    end
+
+    %% Retrieval sources
+    Retr --> Songs[(Song Catalog<br/>data/songs.csv)]
+    Retr --> Docs[(Knowledge Documents<br/>knowledge/*.md)]
+    Retr --> Hist[(User History<br/>sample profiles)]
+
+    %% Verifier can reject or warn -> loops back to composer
+    Ver -- "grounding fails: warn / downgrade confidence" --> Comp
+    Ver -- "passes" --> Output[Transparent Recommendations<br/>+ evidence IDs + confidence]
+
+    %% Logging and evaluation
+    Ver --> Logger[[Structured Logger<br/>JSONL high-level traces]]
+    Logger --> Eval[Evaluation Harness<br/>scripts/evaluate_system.py]
+    Eval --> Review{{Human / Developer Review}}
+    Review -. "inspect metrics before submission" .-> Agent
+
+    Output --> User
+
+    classDef store fill:#eef,stroke:#557;
+    classDef check fill:#efe,stroke:#575;
+    class Songs,Docs,Hist store;
+    class Ver,Review check;
