@@ -1,0 +1,35 @@
+{
+  "description": "Synthetic sample listening profiles used as the OPTIONAL user-history retrieval source. These are fictional and contain no real private user data. Each profile summarises made-up 'past listening' so the retriever can surface [history:<name>] evidence when a profile is selected.",
+  "profiles": {
+    "night_owl_coder": {
+      "display_name": "Night Owl Coder",
+      "summary": "Late-night listener who codes with calm, low-energy lofi and ambient instrumental tracks. Prefers acoustic, focus-friendly, no-lyric music and avoids explicit content.",
+      "top_genres": ["lofi", "ambient", "jazz"],
+      "top_moods": ["chill", "focused", "relaxed"],
+      "liked_song_ids": [2, 4, 9, 6, 25],
+      "avoid_explicit": true,
+      "typical_energy": 0.35,
+      "notes": "Studies and codes between 10pm and 2am, likes quiet focus playlists."
+    },
+    "gym_enthusiast": {
+      "display_name": "Gym Enthusiast",
+      "summary": "High-energy listener who works out to fast, upbeat, danceable pop and edm. Prefers loud driving beats with high tempo and does not mind clean high-energy tracks.",
+      "top_genres": ["edm", "pop"],
+      "top_moods": ["energetic", "intense"],
+      "liked_song_ids": [12, 5, 27, 26, 1],
+      "avoid_explicit": true,
+      "typical_energy": 0.9,
+      "notes": "Trains most mornings and wants motivating cardio music."
+    },
+    "weekend_relaxer": {
+      "display_name": "Weekend Relaxer",
+      "summary": "Unwinds on weekends with mellow acoustic, jazz, and folk. Enjoys soothing relaxed music for quiet evenings and reflective listening.",
+      "top_genres": ["jazz", "folk", "soul"],
+      "top_moods": ["relaxed", "melancholic", "romantic"],
+      "liked_song_ids": [7, 22, 18, 13, 19],
+      "avoid_explicit": true,
+      "typical_energy": 0.4,
+      "notes": "Prefers cozy background music while reading or cooking."
+    }
+  }
+}
